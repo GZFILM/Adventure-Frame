@@ -7,25 +7,32 @@
 <!--head-->
 <title>פריים הרפתקה</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Suez+One&family=Karantina:wght@400;700&family=Heebo:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: one narrow column on a dark camera monitor, same family as View&Finder: HUD strip on top, amber accent, mono read-outs, every picture inside a viewfinder frame. */
+/* Layout: one narrow column, an expedition journal lit by a camera monitor: View&Finder family palette (dark, amber, mono read-outs, viewfinder frames) over a faint treasure map, with parchment map pieces as rewards. */
 :root{
-  --bg:#0c0d10; --panel:#16171c; --panel2:#101116; --line:#2b2d35; --fg:#ecebe6; --dim:#8f9099;
+  --bg:#0f0b07; --panel:#1a140d; --panel2:#130e09; --line:#3b2f1f; --fg:#f3e9d2; --dim:#a89a82;
+  --parch:#e9d6a6; --parch-ink:#2b1c0c; --title:"Suez One","Karantina","Heebo",serif;
   --accent:#f2b33d; --accent-ink:#1a1405; --ok:#5fd18a; --warn:#ff8a5c; --rec:#e8322f;
   --ui:"Heebo",system-ui,-apple-system,"Segoe UI","Arial Hebrew",Arial,sans-serif;
+  --display:"Karantina","Heebo",Impact,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--ui);font-size:18px;line-height:1.5;
-  background-image:radial-gradient(ellipse 90% 420px at 50% -80px,rgba(242,179,61,.13),rgba(242,179,61,0));background-repeat:no-repeat}
+  background-image:radial-gradient(ellipse 90% 460px at 50% -80px,rgba(242,140,40,.22),rgba(242,140,40,0)),url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22640%22 height=%22980%22 viewBox=%220 0 640 980%22 fill=%22none%22 stroke=%22%23f2b33d%22 stroke-linecap=%22round%22%3E%3Cg opacity=%22.07%22 stroke-width=%221.2%22%3E%3Cpath d=%22M-20 210C90 150 170 250 290 200S520 120 660 190%22/%3E%3Cpath d=%22M-20 250C90 190 180 290 300 240S520 165 660 235%22/%3E%3Cpath d=%22M-20 640C120 590 200 700 330 650S540 580 660 640%22/%3E%3Cpath d=%22M-20 685C120 635 210 745 340 695S540 625 660 690%22/%3E%3Cpath d=%22M430 420c40-30 110-20 120 30s-50 80-100 60-60-60-20-90z%22/%3E%3Cpath d=%22M455 440c25-18 65-12 72 18s-30 48-60 36-36-36-12-54z%22/%3E%3C/g%3E%3Cpath opacity=%22.16%22 stroke-width=%223%22 stroke-dasharray=%222 14%22 d=%22M70 900C150 820 60 720 170 660S330 700 380 600 300 470 420 400 560 330 540 210%22/%3E%3Cg opacity=%22.2%22 stroke-width=%224%22%3E%3Cpath d=%22M524 192l32 32M556 192l-32 32%22/%3E%3C/g%3E%3Cg opacity=%22.13%22 stroke-width=%221.5%22 transform=%22translate%2896 330%29%22%3E%3Ccircle r=%2246%22/%3E%3Ccircle r=%2234%22/%3E%3Cpath d=%22M0-60L9-9 60 0 9 9 0 60-9 9-60 0-9-9Z%22/%3E%3Cpath d=%22M-30-30L30 30M30-30L-30 30%22/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat:no-repeat,repeat-y;background-position:center top,center top}
 #app{max-width:640px;margin:0 auto;padding-block:16px 28px;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
   display:flex;flex-direction:column;gap:14px}
-h1,h2{margin:0;font-weight:900;line-height:1;letter-spacing:-.02em;text-wrap:balance}
-h1{font-size:clamp(46px,13vw,84px)} h1 b{color:var(--accent)}
-h2{font-size:clamp(28px,7vw,38px)}
+h1,h2{margin:0;font-family:var(--title);font-weight:400;line-height:1;text-wrap:balance}
+h1{font-size:clamp(56px,16.5vw,108px);transform:rotate(-3deg);transform-origin:center;text-align:center;padding-block:10px 14px}
+h1 span{display:block;font-size:.46em;letter-spacing:.12em;color:var(--fg)}
+h1 b{display:block;font-weight:400;line-height:1.05;background:linear-gradient(#fff0b0 8%,#f2b33d 48%,#c2611a 92%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 0 #7a3410) drop-shadow(0 6px 0 #2e1206) drop-shadow(0 14px 22px rgba(0,0,0,.6))}
+h1.solo{background:linear-gradient(#fff0b0 8%,#f2b33d 48%,#c2611a 92%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #7a3410) drop-shadow(0 6px 0 #2e1206)}
+h2{font-size:clamp(30px,7.5vw,42px);color:var(--accent)}
 p{margin:0}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
 .muted{color:var(--dim)} .small{font-size:.85rem}
@@ -39,23 +46,38 @@ p{margin:0}
 .slate .cell{padding:8px 12px;border-inline-start:1px solid var(--line);min-width:0}
 .slate .cell:first-child{border:0}
 .slate .k{font-size:.72rem;color:var(--dim);letter-spacing:.04em;display:flex;align-items:center;gap:6px}
-.slate .v{font-family:var(--mono);font-weight:600;font-size:1.35rem;line-height:1.3;color:var(--accent);direction:ltr;text-align:right;font-variant-numeric:tabular-nums}
+.slate .v.low{color:var(--warn)}
+.slate .v{font-family:var(--display);font-weight:700;font-size:2.3rem;line-height:.95;color:var(--accent);direction:ltr;text-align:right;font-variant-numeric:tabular-nums}
 .slate .live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--rec)}
 .strip{display:flex;gap:6px;direction:ltr}
 .strip i{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.2)}
 .strip i.on{background:var(--accent)} .strip i.now{background:#fff}
 
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
-.card.win{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 12px 50px rgba(242,179,61,.16)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px;
+  box-shadow:inset 0 0 0 5px var(--panel),inset 0 0 0 6px rgba(242,179,61,.16)}
+/* a piece of the treasure map */
+.clue{background:var(--parch);color:var(--parch-ink);padding:16px;border-radius:3px;display:flex;flex-direction:column;gap:10px;transform:rotate(-.7deg);
+  background-image:radial-gradient(circle at 12% 18%,rgba(120,70,20,.22),rgba(120,70,20,0) 34%),radial-gradient(circle at 88% 86%,rgba(120,70,20,.28),rgba(120,70,20,0) 40%);
+  box-shadow:0 10px 30px rgba(0,0,0,.55),inset 0 0 0 2px rgba(90,50,15,.35),inset 0 0 40px rgba(120,70,20,.3);
+  clip-path:polygon(0 2%,6% 0,19% 1.5%,33% 0,52% 1.2%,70% 0,86% 1.6%,100% 0,99% 22%,100% 47%,98.6% 71%,100% 100%,84% 98.6%,63% 100%,41% 98.5%,22% 100%,7% 98.8%,0 100%,1.2% 70%,0 44%,1.4% 20%)}
+.clue:nth-child(even){transform:rotate(.6deg)}
+.clue .eyebrow{color:#7a4a1c;font-family:var(--display);font-size:1.4rem;letter-spacing:0;line-height:1;font-weight:700}
+.clue .big{font-family:var(--title);font-weight:400;font-size:1.45rem}
+.clue .vf{border-color:#7a4a1c}
+.score{font-family:var(--title);font-size:clamp(64px,18vw,104px);line-height:1;text-align:center;background:linear-gradient(#fff0b0 8%,#f2b33d 48%,#c2611a 92%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #7a3410) drop-shadow(0 6px 0 #2e1206)}
+.bq.good{border-color:var(--ok);color:var(--ok)}
+.card.win{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 12px 50px rgba(242,179,61,.2),inset 0 0 0 5px var(--panel),inset 0 0 0 6px rgba(242,179,61,.16)}
 .eyebrow{font-size:.75rem;font-weight:500;letter-spacing:.06em;color:var(--dim)}
 .tape{align-self:flex-start;color:var(--accent);font-weight:700;font-size:.95rem;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
 .tape::before{content:"";width:18px;height:2px;background:var(--accent)}
 .big{font-size:1.5rem;font-weight:700;line-height:1.3}
+.tape{font-family:var(--display);font-size:1.7rem!important;line-height:1;letter-spacing:0!important}
+legend{font-family:var(--display);font-size:1.7rem!important;line-height:1}
 
 button{font:inherit;font-weight:700;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--fg);
   padding:13px 18px;border-radius:12px;cursor:pointer;min-height:54px;text-align:center}
 button:active{background:rgba(255,255,255,.1)}
-button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:900;font-size:1.25rem;border-radius:999px;min-height:60px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:800;font-size:1.25rem;border-radius:999px;min-height:60px}
 button.primary:active{filter:brightness(.9)}
 button.ok{background:var(--ok);border-color:var(--ok);color:#06210f}
 button.cut{border-color:var(--warn);color:var(--warn)}
@@ -95,7 +117,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;color:var(--dim);font-size:.9rem}
 .stats>div{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 8px}
-.stats b{display:block;font-family:var(--mono);font-weight:600;font-size:2.2rem;line-height:1.2;color:var(--accent);direction:ltr;font-variant-numeric:tabular-nums}
+.stats b{display:block;font-family:var(--display);font-weight:700;font-size:3.4rem;line-height:.9;color:var(--accent);direction:ltr;font-variant-numeric:tabular-nums}
 
 label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;font-weight:500;color:var(--dim)}
 input[type=text],input[type=password],textarea,select{font:inherit;font-size:1rem;color:var(--fg);background:#0f1014;
@@ -108,7 +130,7 @@ legend{font-weight:700;font-size:1rem;padding:0 8px;color:var(--accent)}
 .brand b{color:var(--accent);font-weight:600}
 @media (prefers-reduced-motion:no-preference){
   .card{animation:in .22s ease-out} @keyframes in{from{transform:translateY(8px)}to{transform:none}}
-  .card.win .vf,.card.win .big{animation:pop .5s ease-out} @keyframes pop{from{transform:scale(.94)}to{transform:none}}
+  .card.win .clue{animation:pop .5s ease-out} @keyframes pop{from{transform:scale(.9) rotate(-4deg)}to{transform:rotate(-.7deg)}}
 }
 </style>
 <!--/head-->
@@ -161,7 +183,7 @@ function EYE(x){return '<ellipse cx="'+x+'" cy="99.800" rx="1.050" ry=".68" fill
 function fig(k){return '<div class="vf"><svg viewBox="'+SH[k].vb+'" preserveAspectRatio="xMidYMid slice" role="img" aria-label="'+SH[k].n+'">'+SCENE+'</svg><div class="g"></div><span class="tag">'+k+'</span></div>';}
 
 /* ---------- default game (an example route — the teacher replaces it) ---------- */
-var VER=2;function defaults(){return{v:VER,title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
+var VER=3;function defaults(){return{v:VER,minutes:30,teams:4,title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
  stations:[
   {clue:'המקום שבו הכדור תמיד בפריים.',where:'מגרש הספורט',q:'באיזה שוט רואים את כל המקום, והדמות קטנה מאוד?',opts:['קלוז־אפ','לונג שוט קיצוני','מדיום שוט'],ans:1,shot:'ELS',task:'צלמו את כל המגרש, כשחבר צוות אחד עומד רחוק במרכז.'},
   {clue:'אלפי סיפורים מחכים שם בשקט על המדפים.',where:'הספרייה',q:'איך קוראים לשוט שמראה דמות מהמותניים ומעלה?',opts:['מדיום שוט','לונג שוט','אקסטרים קלוז־אפ'],ans:0,shot:'MS',task:'צלמו חבר צוות מחזיק ספר, מהמותניים ומעלה.'},
@@ -169,6 +191,14 @@ var VER=2;function defaults(){return{v:VER,title:'פריים הרפתקה',pin:'
   {clue:'המקום שמרווה את הצמא בהפסקה.',where:'הברזייה',q:'איזה שוט הכי מתאים כדי להראות רגש על הפנים?',opts:['לונג שוט קיצוני','לונג שוט','קלוז־אפ'],ans:2,shot:'ECU',task:'צלמו ברז או טיפת מים ממש מקרוב, כך שרק הם ממלאים את הפריים.'},
   {clue:'כשהצלצול של ההפסקה נשמע, כולם רצים לשם.',where:'החצר',q:'מה אומר חוק השלישים?',opts:['שמים את הנושא תמיד בדיוק במרכז','מחלקים את הפריים לשלושה חלקים וממקמים את הנושא על הקווים','מצלמים כל שוט שלוש פעמים'],ans:1,shot:'CU',task:'צלמו פנים של חבר צוות עם הבעה של הפתעה.'},
   {clue:'דרך ארוכה עם דלתות משני הצדדים. בשיעור שקט בה, בהפסקה רועש.',where:'המסדרון',q:'איך נראית דמות כשמצלמים אותה מלמטה, בזווית נמוכה?',opts:['קטנה וחלשה','גדולה וחזקה','בדיוק כמו בגובה העיניים'],ans:1,shot:'MCU',task:'צלמו חבר צוות מהחזה ומעלה, כשהמסדרון הארוך נמשך מאחוריו.'}
+ ],
+ bonus:[
+  {q:'מה צועקים רגע לפני שמתחילים לצלם?',opts:['קאט!','אקשן!','ראפ!'],ans:1},
+  {q:'מי כותב את הסיפור של הסרט?',opts:['התסריטאי','הצלם','המאפר'],ans:0},
+  {q:'מה זה סטוריבורד?',opts:['רשימת השחקנים','ציורים של השוטים לפני הצילום','המוזיקה של הסרט'],ans:1},
+  {q:'מצלמה שמצלמת מלמעלה גורמת לדמות להיראות...',opts:['חזקה ומאיימת','קטנה וחלשה','מהירה יותר'],ans:1},
+  {q:'מה עושה העורך?',opts:['מחבר את השוטים לסרט אחד','מחזיק את המיקרופון','מאפר את השחקנים'],ans:0},
+  {q:'איך נקרא שוט שמצולם מנקודת המבט של הדמות?',opts:['POV','ELS','REC'],ans:0}
  ],
  clues:[
   {text:'אקסטרים קלוז־אפ: האוצר נוגע במשהו חום ומחוספס.',img:''},
@@ -192,11 +222,20 @@ var app=document.getElementById('app');
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function saveG(){save('game',G);} function saveP(){save('prog',P);}
 function fmt(ms){var s=Math.max(0,Math.floor(ms/1000));return Math.floor(s/60)+':'+('0'+s%60).slice(-2);}
+function left(){return (+G.minutes||0)*60000-(Date.now()-P.t0);}
+function clock(){return P.end?fmt(P.end-P.start):+G.minutes?fmt(left()):fmt(Date.now()-P.start);}
+function nextBonus(){for(var i=0;i<G.bonus.length;i++)if(!(i in P.bonus))return i;return -1;}
+function bonusCard(){if(!G.bonus.length)return '';var i=nextBonus(),h='<div class="card"><span class="tape">שאלות בונוס · 50 נקודות לכל תשובה נכונה</span>'+
+  (P.lastB?'<p class="msg'+(P.lastB.ok?' good':'')+'" role="status">'+esc(P.lastB.t)+'</p>':'');
+ if(i<0)return h+'<p class="muted">עניתם על כל שאלות הבונוס.</p></div>';
+ var b=G.bonus[i],o='';b.opts.forEach(function(x,j){if(x)o+='<button class="opt bq wide" data-a="bonus" data-v="'+j+'">'+esc(x)+'</button>';});
+ return h+'<p class="eyebrow">שאלה '+(i+1)+' מתוך '+G.bonus.length+' · יש רק ניסיון אחד</p><p class="big">'+esc(b.q)+'</p><div class="stack">'+o+'</div></div>';}
 function cur(){return P.order[P.pos];}
 function norm(s){return String(s||'').replace(/\s+/g,'').toLowerCase();}
 /* one-time approval code: the director's own device turns the shot number into a code, so the pupils never see the teacher PIN */
 function resp(c){var s=String(G.pin)+'#'+c,x=7;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))%1000003;return('00'+x%1000).slice(-3);}
-function syncClues(){while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
+function timeUp(){if(!P||P.end||!+G.minutes||left()>0)return false;if(!P.chal2){P.chal2=10+Math.floor(Math.random()*90);saveP();}return true;}
+function syncClues(){if(!G.bonus)G.bonus=[];if(!G.teams)G.teams=4;if(G.minutes==null)G.minutes=30;while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
 
 /* ---------- views ---------- */
 function slate(){var n=G.stations.length,last=P.pos>=n,strip='';
@@ -204,24 +243,25 @@ function slate(){var n=G.stations.length,last=P.pos>=n,strip='';
  return '<div class="slate">'+
   '<div class="cell"><div class="k">צוות</div><div class="v">'+P.team+'</div></div>'+
   '<div class="cell"><div class="k">סצנה</div><div class="v">'+(last?'END':(P.pos+1)+'/'+n)+'</div></div>'+
-  '<div class="cell"><div class="k">טייק</div><div class="v">'+(last?P.takesAll:(P.takes||0)+1)+'</div></div>'+
-  '<div class="cell"><div class="k'+(P.end?'':' live')+'">זמן</div><div class="v" id="clock">'+fmt((P.end||Date.now())-P.start)+'</div></div>'+
+  '<div class="cell"><div class="k">ניקוד</div><div class="v">'+P.score+'</div></div>'+
+  '<div class="cell"><div class="k'+(P.end?'':' live')+'">'+(P.end||!+G.minutes?'זמן':'נותר')+'</div><div class="v'+(!P.end&&+G.minutes&&left()<300000?' low':'')+'" id="clock">'+clock()+'</div></div>'+
   '</div><div class="strip" aria-label="התקדמות">'+strip+'</div>';}
 function message(){return msg?'<p class="msg'+(msgGood?' good':'')+'" role="status">'+esc(msg)+'</p>':'';}
-function clueCard(i,label){var c=G.clues[i]||{};return '<div class="stack">'+(label?'<span class="eyebrow">'+label+'</span>':'')+
+function clueCard(i,label){var c=G.clues[i]||{};return '<div class="clue">'+(label?'<span class="eyebrow">'+label+'</span>':'')+
   (c.img?'<div class="vf fit"><img alt="תמונת רמז לאוצר" src="'+c.img+'"></div>':'')+'<p class="big">'+esc(c.text||'(אין טקסט לרמז הזה)')+'</p></div>';}
 
 var V={};
-V.home=function(){var t='',lad='';for(var i=1;i<=4;i++)t+='<button data-a="team" data-v="'+i+'" class="'+(team===i?'sel':'')+'" aria-pressed="'+(team===i)+'">צוות '+i+'</button>';
+V.home=function(){var t='',lad='';for(var i=1;i<=G.teams;i++)t+='<button data-a="team" data-v="'+i+'" class="'+(team===i?'sel':'')+'" aria-pressed="'+(team===i)+'">צוות '+i+'</button>';
  Object.keys(SH).forEach(function(k){lad+='<figure>'+fig(k)+'<figcaption>'+SH[k].n+'</figcaption></figure>';});
  var resume=P&&!P.end,w=String(G.title).split(' ');
- return '<div class="stack" style="padding-block:14px 4px"><div class="stripes"></div><h1>'+esc(w[0])+(w.length>1?' <b>'+esc(w.slice(1).join(' '))+'</b>':'')+'</h1>'+
-  '<p class="big">ציד אוצר לצוותי צילום. כל שוט בגודל הנכון חושף עוד רמז.</p></div>'+
+ return '<div class="stack" style="padding-block:14px 4px"><div class="stripes"></div>'+(w.length>1?'<h1><span>'+esc(w[0])+'</span><b>'+esc(w.slice(1).join(' '))+'</b></h1>':'<h1 class="solo">'+esc(w[0])+'</h1>')+
+  '<p class="big" style="text-align:center">מסע אל האוצר האבוד של בית הספר. כל שוט בגודל הנכון חושף עוד חתיכה מהמפה.</p></div>'+
   (resume?'<button class="primary wide" data-a="resume">ממשיכים לצלם (צוות '+P.team+')</button>':'')+
-  '<div class="card"><span class="tape">'+(resume?'משחק חדש':'בחרו צוות')+'</span><div class="row">'+t+'</div>'+
+  '<div class="card"><span class="tape">'+(resume?'משחק חדש':'בחרו צוות')+'</span><div class="row">'+t+(G.teams<12?'<button class="ghost" data-a="addteam">+ צוות נוסף</button>':'')+'</div>'+
   '<button class="'+(resume?'':'primary ')+'wide" data-a="start">'+(resume&&armed!=='start'?'מתחילים משחק חדש':resume?'לחצו שוב: המשחק הקודם יימחק':'אקשן! מתחילים')+'</button></div>'+
   '<div class="card"><span class="tape">ששת גדלי השוט</span><p class="muted">אותה דמות, אותו מקום. רק המרחק מהמצלמה משתנה.</p><div class="ladder">'+lad+'</div></div>'+
-  '<div class="card"><span class="tape">איך משחקים</span><p>בכל סצנה תפענחו רמז, תגיעו למקום הנכון בבית הספר ותצלמו שם שוט בגודל שביקשו מכם. הבמאי מאשר, ואתם מקבלים רמז נוסף למקום שבו מוחבא האוצר.</p></div>'+
+  '<div class="card"><span class="tape">איך משחקים</span><p>בכל סצנה תפענחו רמז, תגיעו למקום הנכון בבית הספר ותצלמו שם שוט בגודל שביקשו מכם. הבמאי מאשר, ואתם מקבלים רמז נוסף למקום שבו מוחבא האוצר.</p>'+
+  '<p class="muted">ניקוד: שוט מאושר 100 (ועוד 20 אם הצליח בטייק הראשון) · שאלה נכונה בניסיון ראשון 30 · שאלת בונוס 50 · מציאת האוצר 200 · כל דקה שנשארה בשעון 10.</p></div>'+
   '<button class="ghost" data-a="gate">מצב מורה</button>';};
 
 V.play=function(){var s=G.stations[cur()],h=slate(),st=P.stage;
@@ -242,11 +282,17 @@ V.play=function(){var s=G.stations[cur()],h=slate(),st=P.stage;
      '<div class="row"><button class="ok" data-a="approve">הדפיסו! השוט מאושר</button><button class="cut" data-a="retake">קאט! מצלמים שוב</button></div>';
    h+='</div>';}
  else if(st==='reward'){var lastOne=P.pos+1>=G.stations.length;
-   h+='<div class="card win"><span class="tape">רמז לאוצר '+(P.pos+1)+' מתוך '+G.stations.length+'</span>'+clueCard(P.pos)+
+   h+='<div class="card win"><span class="tape">חתיכת מפה '+(P.pos+1)+' מתוך '+G.stations.length+'</span><p class="msg good">'+esc(P.gain||'')+'</p>'+clueCard(P.pos,'רמז לאוצר')+
    '<button class="primary wide" data-a="next">'+(lastOne?'יוצאים לחפש את האוצר':'לסצנה הבאה')+'</button></div>';}
+ if(st!=='review')h+=bonusCard();
  if(P.pos>0&&st!=='reward')h+='<button class="ghost" data-a="clues">הרמזים לאוצר שאספנו ('+P.pos+')</button>';
  return h+'<button class="ghost" data-a="home">למסך הפתיחה</button>';};
 
+V.timeup=function(){return slate()+'<div class="card"><span class="tape">קאט!</span><h2>הזמן נגמר</h2>'+
+  '<p class="big">עצרו וחזרו אל הבמאי. רק הוא יכול לתת לכם זמן נוסף.</p>'+
+  '<div class="stats" style="grid-template-columns:1fr"><div><b>'+P.chal2+'</b>מספר הצוות לאיפוס הטיימר</div></div>'+
+  '<label for="tpin">קוד הבמאי<input class="pin" id="tpin" type="password" inputmode="numeric" autocomplete="off"></label>'+message()+
+  '<button class="primary wide" data-a="moretime">מאפסים את הטיימר וממשיכים</button></div>'+(P.pos>0?'<div class="card">'+Array.apply(0,Array(P.pos)).map(function(_,i){return clueCard(i,'רמז '+(i+1));}).join('')+'</div>':'');};
 V.clues=function(){var h=slate()+'<div class="card"><h2>הרמזים לאוצר</h2>';
  for(var i=0;i<P.pos;i++)h+=clueCard(i,'רמז '+(i+1));
  return h+'</div><button class="primary wide" data-a="resume">חזרה לסצנה</button>';};
@@ -256,11 +302,11 @@ V.hunt=function(){var h=slate()+'<div class="card"><span class="tape">הסצנה
   '<label for="code">מילת הקוד שעל האוצר<input id="code" type="text" autocomplete="off"></label>'+message()+
   '<button class="primary wide" data-a="code">מצאנו!</button></div><div class="card">';
  for(var i=0;i<G.clues.length;i++)h+=clueCard(i,'רמז '+(i+1));
- return h+'</div><button class="ghost" data-a="home">למסך הפתיחה</button>';};
+ return h+'</div>'+bonusCard()+'<button class="ghost" data-a="home">למסך הפתיחה</button>';};
 
 V.done=function(){var sh='';P.order.forEach(function(si,i){if(P.shots[si])sh+='<figure><div class="vf"><img alt="" src="'+P.shots[si]+'"></div><figcaption>סצנה '+(i+1)+' · '+SH[G.stations[si].shot].n+'</figcaption></figure>';});
- return slate()+'<div class="card win"><span class="tape">זה ראפ!</span><h1>מצאתם את האוצר</h1>'+
-  '<div class="stats"><div><b>'+fmt(P.end-P.start)+'</b>זמן</div><div><b>'+P.takesAll+'</b>טייקים</div><div><b>'+P.wrong+'</b>טעויות בשאלות</div></div></div>'+
+ return slate()+'<div class="card win"><span class="tape">זה ראפ!</span><h2>צוות '+P.team+' מצא את האוצר</h2><div class="score">'+P.score+'</div><p class="shutlbl">נקודות. הראו את המסך לבמאי.</p>'+
+  '<div class="stats"><div><b>'+fmt(P.end-P.start)+'</b>זמן</div><div><b>'+P.takesAll+'</b>טייקים</div><div><b>'+Object.keys(P.bonus).filter(function(k){return P.bonus[k];}).length+'/'+G.bonus.length+'</b>שאלות בונוס</div></div></div>'+
   '<div class="card"><h2>דף הקונטקטים שלכם</h2><p class="muted">כל השוטים שצילמתם בדרך, לפי הסדר. יחד הם מספרים את המסע.</p><div class="sheet">'+sh+'</div></div>'+
   '<button class="ghost" data-a="home">למסך הפתיחה</button>';};
 
@@ -276,6 +322,8 @@ V.edit=function(){var h='<div class="row" style="justify-content:space-between">
  '<div class="card"><label>שם המשחק<input type="text" id="e-title" data-f="title" value="'+esc(G.title)+'"></label>'+
  '<div class="two"><label>קוד מורה<input type="text" id="e-pin" data-f="pin" inputmode="numeric" value="'+esc(G.pin)+'"></label>'+
  '<label>מילת הקוד שעל האוצר<input type="text" id="e-code" data-f="code" value="'+esc(G.code)+'"></label></div>'+
+ '<div class="two"><label>זמן המשחק בדקות (0 = בלי הגבלה)<input type="text" id="e-min" data-f="minutes" data-n="1" inputmode="numeric" value="'+esc(G.minutes)+'"></label>'+
+ '<div class="stack" style="justify-content:flex-end"><button data-a="resett">איפוס הטיימר בטאבלט הזה</button></div></div>'+(view==='edit'&&msg?message():'')+
  '<label>מי מאשר את השוטים?<select id="e-appr" data-f="approval"><option value="teacher"'+(G.approval==='teacher'?' selected':'')+'>אני, עם קוד מורה</option><option value="self"'+(G.approval==='self'?' selected':'')+'>הצוות בודק את עצמו מול ציור</option></select></label></div>'+
  '<p class="muted">כל צוות מתחיל מתחנה אחרת (צוות 1 מתחנה 1, צוות 2 מתחנה 2 וכן הלאה), כך שהצוותים לא הולכים זה אחרי זה. רמזי האוצר נחשפים תמיד באותו סדר, מהקרוב אל הרחב.</p>';
  G.stations.forEach(function(s,i){var p='stations.'+i+'.',so='',ao='';
@@ -295,6 +343,13 @@ V.edit=function(){var h='<div class="row" style="justify-content:space-between">
  G.clues.forEach(function(c,i){h+='<fieldset><legend>רמז '+(i+1)+'</legend>'+(c.img?'<div class="vf fit"><img alt="" src="'+c.img+'"></div>':'')+
   '<label>טקסט הרמז<textarea id="c'+i+'t" data-f="clues.'+i+'.text">'+esc(c.text)+'</textarea></label>'+
   '<div class="row"><button class="ghost" data-a="cluecam" data-v="'+i+'">'+(c.img?'החלפת תמונה':'צילום או בחירת תמונה')+'</button>'+(c.img?'<button class="ghost" data-a="cluedel" data-v="'+i+'">הסרת התמונה</button>':'')+'</div></fieldset>';});
+ h+='<h2>שאלות בונוס</h2><p class="muted">מופיעות מתחת לכל תחנה. כל צוות עונה בקצב שלו, ויש ניסיון אחד לכל שאלה.</p>';
+ G.bonus.forEach(function(b,i){var ao='';for(var j=0;j<3;j++)ao+='<option value="'+j+'"'+(b.ans===j?' selected':'')+'>תשובה '+(j+1)+'</option>';
+  h+='<fieldset><legend>בונוס '+(i+1)+'</legend><label>השאלה<input type="text" id="b'+i+'q" data-f="bonus.'+i+'.q" value="'+esc(b.q)+'"></label>'+
+  '<div class="stack">'+[0,1,2].map(function(j){return '<input type="text" id="b'+i+'o'+j+'" aria-label="תשובה '+(j+1)+'" placeholder="תשובה '+(j+1)+'" data-f="bonus.'+i+'.opts.'+j+'" value="'+esc(b.opts[j])+'">';}).join('')+'</div>'+
+  '<label>התשובה הנכונה<select id="b'+i+'a" data-f="bonus.'+i+'.ans" data-n="1">'+ao+'</select></label>'+
+  '<button class="ghost" data-a="delbq" data-v="'+i+'">'+(armed==='bq'+i?'לחצו שוב למחיקה':'מחיקת השאלה')+'</button></fieldset>';});
+ h+='<button data-a="addbq">הוספת שאלת בונוס</button>';
  h+='<div class="card"><h2>העברה לטאבלטים אחרים</h2><p class="muted">שמרו את המשחק כקובץ אחד (כולל התמונות), העבירו אותו לטאבלט אחר וטענו אותו שם.</p>'+
  '<div class="row"><button data-a="exp">שמירת המשחק כקובץ</button><button data-a="imp">טעינת משחק מקובץ</button></div>'+message()+'</div>'+
  '<div class="card"><h2>איפוס</h2><div class="row"><button class="cut" data-a="resetp">'+(armed==='resetp'?'לחצו שוב לאישור':'מחיקת ההתקדמות בטאבלט הזה')+'</button>'+
@@ -309,21 +364,29 @@ function arm(k){if(armed===k){armed='';return true;}armed=k;render(true);return 
 var A={
  team:function(v){team=+v;armed='';render(true);},
  start:function(){if(P&&!P.end&&!arm('start'))return;var n=G.stations.length,o=[];for(var i=0;i<n;i++)o.push((i+team-1)%n);
-  P={team:team,start:Date.now(),order:o,pos:0,stage:'go',takes:0,takesAll:0,wrong:0,shots:{},bad:[]};saveP();go('play');},
- resume:function(){go(P.end?'done':P.pos>=G.stations.length?'hunt':'play');},
+  P={team:team,start:Date.now(),t0:Date.now(),score:0,bonus:{},order:o,pos:0,stage:'go',takes:0,takesAll:0,wrong:0,shots:{},bad:[]};saveP();go('play');},
+ resume:function(){go(P.end?'done':timeUp()?'timeup':P.pos>=G.stations.length?'hunt':'play');},
  home:function(){unlocked=false;go('home');},
  arrive:function(){P.stage=G.stations[cur()].q?'q':'shoot';saveP();go('play');},
- ans:function(v){var s=G.stations[cur()];if(+v===s.ans){P.stage='shoot';P.bad=[];saveP();go('play');msg='נכון מאוד!';msgGood=true;render();}
+ ans:function(v){var s=G.stations[cur()];if(+v===s.ans){var g=P.bad.length===0?30:P.bad.length===1?10:0;P.score+=g;P.stage='shoot';P.bad=[];P.lastB=null;saveP();go('play');msg='נכון מאוד!'+(g?' קיבלתם '+g+' נקודות.':'');msgGood=true;render();}
   else{P.wrong++;P.bad.push(+v);saveP();msg='לא מדויק. נסו שוב.';msgGood=false;render(true);}},
  hint:function(){P.hint=true;saveP();render(true);},
  cam:function(){camFor='shot';document.getElementById('cam').click();},
  check:function(){if(G.approval==='teacher'){P.checked=true;saveP();render(true);}else A.approve();},
  retake:function(){P.checked=false;P.pending='';P.stage='shoot';saveP();go('play');},
  approve:function(){if(G.approval==='teacher'){var p=document.getElementById('pin').value.trim();if(p!==String(G.pin)&&p!==resp(P.chal)){msg='קוד שגוי. רק הבמאי מאשר שוטים.';msgGood=false;render(true);return;}}
-  P.shots[cur()]=P.pending;P.pending='';P.checked=false;P.stage='reward';saveP();go('play');},
+  var g=100+(P.takes===1?20:0);P.score+=g;P.gain='קיבלתם '+g+' נקודות'+(P.takes===1?', כולל בונוס על טייק ראשון.':'.');P.lastB=null;P.shots[cur()]=P.pending;P.pending='';P.checked=false;P.stage='reward';saveP();go('play');},
  next:function(){P.pos++;P.takes=0;P.hint=false;P.stage='go';saveP();go(P.pos>=G.stations.length?'hunt':'play');},
  clues:function(){go('clues');},
- code:function(){if(norm(document.getElementById('code').value)===norm(G.code)){P.end=Date.now();saveP();go('done');}
+ addteam:function(){G.teams++;team=G.teams;saveG();render(true);},
+ bonus:function(v){var i=nextBonus();if(i<0)return;var b=G.bonus[i],ok=+v===b.ans;P.bonus[i]=ok;if(ok)P.score+=50;
+  P.lastB={ok:ok,t:ok?'נכון! קיבלתם 50 נקודות.':'לא נכון. התשובה הנכונה: '+b.opts[b.ans]};saveP();render(true);},
+ addbq:function(){G.bonus.push({q:'',opts:['','',''],ans:0});saveG();render(true);},
+ delbq:function(v){if(!arm('bq'+v))return;G.bonus.splice(+v,1);saveG();render(true);},
+ moretime:function(){var p=document.getElementById('tpin').value.trim();if(p!==String(G.pin)&&p!==resp(P.chal2)){msg='קוד שגוי. רק הבמאי מאפס את הטיימר.';msgGood=false;render(true);return;}
+  P.t0=Date.now();P.chal2=0;saveP();A.resume();},
+ resett:function(){if(P&&!P.end){P.t0=Date.now();P.chal2=0;saveP();msg='הטיימר אופס. לצוות יש שוב '+(+G.minutes)+' דקות.';}else msg='אין משחק פעיל בטאבלט הזה.';msgGood=true;render(true);},
+ code:function(){if(norm(document.getElementById('code').value)===norm(G.code)){P.score+=200+(+G.minutes?Math.max(0,Math.floor(left()/60000))*10:0);P.end=Date.now();saveP();go('done');}
   else{msg='זו לא מילת הקוד. המשיכו לחפש!';msgGood=false;render(true);}},
  gate:function(){go('gate');},
  enter:function(){if(document.getElementById('gpin').value===String(G.pin)){unlocked=true;go('edit');}else{msg='קוד שגוי.';render(true);}},
@@ -337,13 +400,13 @@ var A={
  resetg:function(){if(!arm('resetg'))return;G=defaults();saveG();render(true);}
 };
 app.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.getAttribute('data-a');
- if(a!==armed.replace(/\d+$/,'')&&['start','delst','resetp','resetg'].indexOf(a)<0)armed='';msg='';A[a](b.getAttribute('data-v'));});
+ if(a!==armed.replace(/\d+$/,'')&&['start','delst','delbq','resetp','resetg'].indexOf(a)<0)armed='';msg='';A[a](b.getAttribute('data-v'));});
 app.addEventListener('input',function(e){if(e.target.id==='chal'||e.target.id==='e-pin'){var c=document.getElementById('chal').value.trim();setTimeout(function(){document.getElementById('resp').textContent=c?resp(c):'---';},0);}
  var f=e.target.getAttribute&&e.target.getAttribute('data-f');if(!f||!unlocked)return;
  var parts=f.split('.'),o=G;for(var i=0;i<parts.length-1;i++)o=o[parts[i]];
- o[parts[parts.length-1]]=e.target.getAttribute('data-n')?+e.target.value:e.target.value;saveG();});
+ o[parts[parts.length-1]]=e.target.getAttribute('data-n')?(+e.target.value||0):e.target.value;saveG();});
 app.addEventListener('keydown',function(e){if(e.key!=='Enter'||e.target.tagName!=='INPUT')return;
- var m={pin:'approve',gpin:'enter',code:'code'}[e.target.id];if(m){e.preventDefault();A[m]();}});
+ var m={pin:'approve',gpin:'enter',code:'code',tpin:'moretime'}[e.target.id];if(m){e.preventDefault();A[m]();}});
 
 /* ---------- photos: shrink before storing so the tablet does not fill up ---------- */
 function shrink(file,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){
@@ -360,8 +423,9 @@ document.getElementById('imp').addEventListener('change',function(e){var f=e.tar
  var r=new FileReader();r.onload=function(){try{var g=JSON.parse(r.result);if(!g.stations||!g.stations.length||!g.clues)throw 0;g.v=VER;G=g;syncClues();saveG();msg='המשחק נטען.';msgGood=true;}
   catch(x){msg='זה לא קובץ משחק תקין.';msgGood=false;}render(true);};r.readAsText(f);});
 
-setInterval(function(){var c=document.getElementById('clock');if(c&&P&&!P.end)c.textContent=fmt(Date.now()-P.start);},1000);
-Promise.all([load('game'),load('prog')]).then(function(r){if(r[0]&&r[0].stations&&r[0].v===VER)G=r[0];else if(r[1]){r[1]=null;save('prog',null);}if(r[1])P=r[1];if(P)team=P.team;syncClues();render();},function(){render();});
+setInterval(function(){if(!P||P.end)return;if(['play','clues','hunt'].indexOf(view)>=0&&timeUp()){go('timeup');return;}
+ var c=document.getElementById('clock');if(c){c.textContent=clock();c.classList.toggle('low',!!+G.minutes&&left()<300000);}},1000);
+Promise.all([load('game'),load('prog')]).then(function(r){if(r[0]&&r[0].stations&&r[0].v===VER)G=r[0];else if(r[1]){r[1]=null;save('prog',null);}if(r[1])P=r[1];if(P){team=P.team;if(!P.t0)P.t0=P.start;if(!P.bonus)P.bonus={};if(!P.score)P.score=0;}syncClues();render();},function(){render();});
 render();
 try{if('serviceWorker' in navigator&&location.protocol==='https:'&&window.top===window.self)navigator.serviceWorker.register('sw.js').catch(function(){});}catch(e){}
 })();
