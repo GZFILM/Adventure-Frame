@@ -1,0 +1,10 @@
+{
+  "name": "פריים הרפתקה",
+  "short_name": "פריים הרפתקה",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#14202E",
+  "theme_color": "#14202E"
+}

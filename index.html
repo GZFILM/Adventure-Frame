@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<!--head-->
+<title>פריים הרפתקה</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@400;700&family=Rubik:wght@400;500;700&display=swap">
+<style>
+/* Layout: one narrow column, like a call sheet clipped under a clapperboard slate that always shows scene / take / time. */
+:root{
+  --bg:#E9EEF3; --surface:#FFFFFF; --ink:#14202E; --muted:#566579; --line:#C5CFDA;
+  --tape:#F2C230; --tape-ink:#231C00; --rec:#C8342A; --ok:#1B7F53;
+  --slate:#14202E; --slate-ink:#F4F7FA; --slate-dim:#9FB0C3;
+  --sky:#BFDDF2; --gnd:#9CC58B; --bld:#E6D3B8; --skin:#F0C39E; --shirt:#D9483B; --draw:#1B2433;
+  --display:"Karantina","Rubik","Arial Hebrew",Arial,sans-serif;
+  --body:"Rubik","Segoe UI","Arial Hebrew",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1722; --surface:#18222F; --ink:#EEF2F6; --muted:#9AA8B8; --line:#2C3A4B;
+  --rec:#F0655A; --ok:#45C48B; --slate:#060A10; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0F1722; --surface:#18222F; --ink:#EEF2F6; --muted:#9AA8B8; --line:#2C3A4B;
+  --rec:#F0655A; --ok:#45C48B; --slate:#060A10; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5}
+#app{max-width:620px;margin:0 auto;padding-block:16px 40px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
+  display:flex;flex-direction:column;gap:16px}
+h1,h2{font-family:var(--display);font-weight:700;line-height:1;margin:0;text-wrap:balance}
+h1{font-size:4rem} h2{font-size:2.4rem}
+p{margin:0}
+.muted{color:var(--muted)} .small{font-size:.85rem}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row>*{min-width:0}
+
+/* clapperboard */
+.slate{background:var(--slate);color:var(--slate-ink);border-radius:6px;overflow:hidden}
+.slate .sticks{height:18px;background:repeating-linear-gradient(-55deg,var(--slate-ink) 0 22px,var(--slate) 22px 44px)}
+.slate .cells{display:grid;grid-template-columns:repeat(4,1fr)}
+.slate .cell{padding:8px 10px;border-inline-start:1px solid #ffffff33;min-width:0}
+.slate .cell:first-child{border:0}
+.slate .k{font-size:.7rem;letter-spacing:.08em;color:var(--slate-dim)}
+.slate .v{font-family:var(--display);font-size:2rem;line-height:1;font-variant-numeric:tabular-nums}
+.strip{display:flex;gap:6px}
+.strip i{flex:1;height:8px;border-radius:2px;background:var(--line)}
+.strip i.on{background:var(--tape)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+.big{font-size:1.45rem;font-weight:500;line-height:1.35}
+.tape{align-self:flex-start;background:var(--tape);color:var(--tape-ink);font-weight:700;padding:2px 12px;transform:rotate(-1.5deg);font-size:1rem}
+
+button,.btn{font:inherit;font-weight:700;border:2px solid var(--ink);background:transparent;color:var(--ink);
+  padding:14px 18px;border-radius:6px;cursor:pointer;min-height:56px;text-align:center}
+button.primary{background:var(--tape);color:var(--tape-ink);border-color:var(--tape-ink);font-size:1.15rem}
+button.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+button.cut{border-color:var(--rec);color:var(--rec)}
+button.ghost{border-color:var(--line);font-weight:500;min-height:44px;padding:8px 14px;font-size:.95rem}
+button.wide{width:100%}
+button.sel{background:var(--ink);color:var(--surface)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--tape);outline-offset:2px}
+.opt{text-align:start;font-weight:500}
+.opt.bad{border-color:var(--rec);color:var(--rec);text-decoration:line-through}
+.msg{font-weight:700;color:var(--rec)} .msg.good{color:var(--ok)}
+
+/* viewfinder */
+.vf{position:relative;background:var(--slate);aspect-ratio:16/9;max-width:100%;overflow:hidden}
+.vf img,.vf svg{width:100%;height:100%;object-fit:cover;display:block}
+.vf.fit img{object-fit:contain}
+.vf::before,.vf::after{content:"";position:absolute;inset:10px;pointer-events:none;
+  background:
+   linear-gradient(var(--tape),var(--tape)) top left/26px 3px no-repeat,linear-gradient(var(--tape),var(--tape)) top left/3px 26px no-repeat,
+   linear-gradient(var(--tape),var(--tape)) bottom right/26px 3px no-repeat,linear-gradient(var(--tape),var(--tape)) bottom right/3px 26px no-repeat}
+.vf::after{transform:scaleX(-1)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:460px){.two{grid-template-columns:1fr} h1{font-size:3.2rem}}
+.f-sky{fill:var(--sky)}.f-gnd{fill:var(--gnd)}.f-bld{fill:var(--bld)}.f-skin{fill:var(--skin)}.f-shirt{fill:var(--shirt)}.f-ink{fill:var(--draw)}.f-wht{fill:#fff}.f-sun{fill:var(--tape)}
+
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sheet figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.sheet figcaption{font-size:.8rem;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
+.stats b{display:block;font-family:var(--display);font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
+
+label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;font-weight:700;color:var(--muted)}
+input[type=text],input[type=password],textarea,select{font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);
+  border:1px solid var(--line);border-radius:4px;padding:10px;width:100%}
+textarea{min-height:64px;resize:vertical}
+.pin{font-size:1.6rem!important;letter-spacing:.4em;text-align:center;max-width:220px}
+fieldset{border:1px solid var(--line);border-radius:6px;padding:14px;margin:0;display:flex;flex-direction:column;gap:10px;min-width:0}
+legend{font-family:var(--display);font-size:1.6rem;padding:0 6px}
+@media (prefers-reduced-motion:no-preference){ .card{animation:in .25s ease-out} @keyframes in{from{transform:translateY(6px)}to{transform:none}} }
+</style>
+<!--/head-->
+</head>
+<body>
+<!--body-->
+<div id="app"></div>
+<input type="file" id="cam" accept="image/*" capture="environment" hidden>
+<input type="file" id="pick" accept="image/*" hidden>
+<input type="file" id="imp" accept=".json,application/json" hidden>
+<script>
+(function(){
+'use strict';
+/* ---------- shot sizes: one drawing, cropped differently for every size ---------- */
+var SH={
+ ELS:{n:'לונג שוט קיצוני',d:'רואים את כל המקום. הדמות קטנה מאוד בפריים.',vb:'0 0 400 225'},
+ LS:{n:'לונג שוט',d:'כל הגוף בפריים, מהראש ועד הרגליים.',vb:'138 84 124 70'},
+ MS:{n:'מדיום שוט',d:'מהמותניים ומעלה.',vb:'168 91 64 36'},
+ MCU:{n:'מדיום קלוז־אפ',d:'מהחזה ומעלה.',vb:'178.7 92 42.7 24'},
+ CU:{n:'קלוז־אפ',d:'הפנים ממלאות את הפריים.',vb:'187.5 93 24.9 14'},
+ ECU:{n:'אקסטרים קלוז־אפ',d:'פרט אחד בלבד ממלא את הפריים: עין, יד, חפץ קטן.',vb:'194.4 97.2 6.4 3.6'}
+};
+var SCENE='<rect class="f-sky" x="0" y="0" width="400" height="160"/><circle class="f-sun" cx="340" cy="40" r="16"/>'+
+ '<rect class="f-bld" x="30" y="70" width="120" height="82"/><rect class="f-ink" x="30" y="64" width="120" height="7"/>'+
+ '<g class="f-wht"><rect x="42" y="82" width="20" height="16"/><rect x="80" y="82" width="20" height="16"/><rect x="118" y="82" width="20" height="16"/><rect x="42" y="112" width="20" height="16"/><rect x="118" y="112" width="20" height="16"/></g>'+
+ '<rect class="f-ink" x="80" y="118" width="20" height="34"/>'+
+ '<rect class="f-ink" x="292" y="112" width="7" height="40"/><circle class="f-gnd" cx="295" cy="98" r="26" stroke="#1B2433" stroke-width="1"/>'+
+ '<rect class="f-gnd" x="0" y="150" width="400" height="75"/>'+
+ '<rect class="f-ink" x="194" y="127" width="5.4" height="23" rx="1"/><rect class="f-ink" x="200.6" y="127" width="5.4" height="23" rx="1"/>'+
+ '<rect class="f-shirt" x="188" y="109" width="4" height="18" rx="2"/><rect class="f-shirt" x="208" y="109" width="4" height="18" rx="2"/>'+
+ '<rect class="f-shirt" x="192" y="108" width="16" height="21" rx="2.5"/><rect class="f-skin" x="198" y="105" width="4" height="4"/>'+
+ '<circle class="f-skin" cx="200" cy="100" r="6"/><path class="f-ink" d="M194 99.5a6 6 0 0 1 12 0c-1.5-2.4-3.5-3.4-6-3.4s-4.500 1-6 3.400z"/>'+
+ '<ellipse class="f-wht" cx="197.600" cy="99.800" rx="1.050" ry=".65"/><ellipse class="f-wht" cx="202.400" cy="99.800" rx="1.050" ry=".65"/>'+
+ '<circle class="f-ink" cx="197.600" cy="99.800" r=".42"/><circle class="f-ink" cx="202.400" cy="99.800" r=".42"/>'+
+ '<path d="M198.300 103.200q1.700 1.100 3.400 0" fill="none" stroke="#1B2433" stroke-width=".35" stroke-linecap="round"/>';
+function fig(k){return '<div class="vf"><svg viewBox="'+SH[k].vb+'" preserveAspectRatio="xMidYMid slice" role="img" aria-label="'+SH[k].n+'">'+SCENE+'</svg></div>';}
+
+/* ---------- default game (an example route — the teacher replaces it) ---------- */
+function defaults(){return{title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
+ stations:[
+  {clue:'המקום שבו הכדור תמיד בפריים.',where:'מגרש הספורט',q:'באיזה שוט רואים את כל המקום, והדמות קטנה מאוד?',opts:['קלוז־אפ','לונג שוט קיצוני','מדיום שוט'],ans:1,shot:'ELS',task:'צלמו את כל המגרש, כשחבר צוות אחד עומד רחוק במרכז.'},
+  {clue:'אלפי סיפורים מחכים שם בשקט על המדפים.',where:'הספרייה',q:'איך קוראים לשוט שמראה דמות מהמותניים ומעלה?',opts:['מדיום שוט','לונג שוט','אקסטרים קלוז־אפ'],ans:0,shot:'MS',task:'צלמו חבר צוות מחזיק ספר, מהמותניים ומעלה.'},
+  {clue:'כאן כל יום לימודים מתחיל ונגמר.',where:'שער בית הספר',q:'מי מחליט איפה תעמוד המצלמה ומה יהיה בפריים?',opts:['המפיק','העורך','הבמאי והצלם'],ans:2,shot:'LS',task:'צלמו חבר צוות ליד השער, מהראש ועד הרגליים.'},
+  {clue:'המקום שמרווה את הצמא בהפסקה.',where:'הברזייה',q:'איזה שוט הכי מתאים כדי להראות רגש על הפנים?',opts:['לונג שוט קיצוני','לונג שוט','קלוז־אפ'],ans:2,shot:'ECU',task:'צלמו ברז או טיפת מים ממש מקרוב, כך שרק הם ממלאים את הפריים.'},
+  {clue:'הלב של בית הספר. לשם פונים כשצריך עזרה.',where:'המזכירות',q:'מה אומר חוק השלישים?',opts:['שמים את הנושא תמיד בדיוק במרכז','מחלקים את הפריים לשלושה חלקים וממקמים את הנושא על הקווים','מצלמים כל שוט שלוש פעמים'],ans:1,shot:'CU',task:'צלמו פנים של חבר צוות עם הבעה של הפתעה.'}
+ ],
+ clues:[
+  {text:'אקסטרים קלוז־אפ: האוצר נוגע במשהו חום ומחוספס.',img:''},
+  {text:'קלוז־אפ: יש לידו עלים ירוקים.',img:''},
+  {text:'מדיום שוט: הוא מסתתר מתחת למשהו שיושבים עליו.',img:''},
+  {text:'לונג שוט: זה בחוץ, בחצר, ליד עץ גדול.',img:''},
+  {text:'לונג שוט קיצוני: העץ הגדול שליד המגרש. חפשו מתחת לספסל!',img:''}
+ ]};}
+
+/* ---------- storage (IndexedDB, falls back to memory) ---------- */
+var mem={},dbp=null;
+function db(){if(dbp)return dbp;dbp=new Promise(function(res){try{var r=indexedDB.open('frame-adventure',1);
+ r.onupgradeneeded=function(){r.result.createObjectStore('kv');};r.onsuccess=function(){res(r.result);};r.onerror=function(){res(null);};}catch(e){res(null);}});return dbp;}
+function load(k){return db().then(function(d){if(!d)return mem[k];return new Promise(function(res){try{var q=d.transaction('kv').objectStore('kv').get(k);
+ q.onsuccess=function(){res(q.result);};q.onerror=function(){res(mem[k]);};}catch(e){res(mem[k]);}});});}
+function save(k,v){mem[k]=v;db().then(function(d){if(!d)return;try{d.transaction('kv','readwrite').objectStore('kv').put(v,k);}catch(e){}});}
+
+var G=defaults(),P=null,view='home',team=1,msg='',msgGood=false,armed='',unlocked=false,camFor=null;
+var app=document.getElementById('app');
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function saveG(){save('game',G);} function saveP(){save('prog',P);}
+function fmt(ms){var s=Math.max(0,Math.floor(ms/1000));return Math.floor(s/60)+':'+('0'+s%60).slice(-2);}
+function cur(){return P.order[P.pos];}
+function norm(s){return String(s||'').replace(/\s+/g,'').toLowerCase();}
+/* one-time approval code: the director's own device turns the shot number into a code, so the pupils never see the teacher PIN */
+function resp(c){var s=String(G.pin)+'#'+c,x=7;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))%1000003;return('00'+x%1000).slice(-3);}
+function syncClues(){while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
+
+/* ---------- views ---------- */
+function slate(){var n=G.stations.length,last=P.pos>=n,strip='';
+ for(var i=0;i<n;i++)strip+='<i class="'+(i<P.pos?'on':'')+'"></i>';
+ return '<div class="slate"><div class="sticks"></div><div class="cells">'+
+  '<div class="cell"><div class="k">צוות</div><div class="v">'+P.team+'</div></div>'+
+  '<div class="cell"><div class="k">סצנה</div><div class="v">'+(last?'סוף':(P.pos+1)+'/'+n)+'</div></div>'+
+  '<div class="cell"><div class="k">טייק</div><div class="v">'+(last?P.takesAll:(P.takes||0)+1)+'</div></div>'+
+  '<div class="cell"><div class="k">זמן</div><div class="v" id="clock">'+fmt((P.end||Date.now())-P.start)+'</div></div>'+
+  '</div></div><div class="strip" aria-label="התקדמות">'+strip+'</div>';}
+function message(){return msg?'<p class="msg'+(msgGood?' good':'')+'" role="status">'+esc(msg)+'</p>':'';}
+function clueCard(i,label){var c=G.clues[i]||{};return '<div class="stack">'+(label?'<span class="eyebrow">'+label+'</span>':'')+
+  (c.img?'<div class="vf fit"><img alt="תמונת רמז לאוצר" src="'+c.img+'"></div>':'')+'<p class="big">'+esc(c.text||'(אין טקסט לרמז הזה)')+'</p></div>';}
+
+var V={};
+V.home=function(){var t='';for(var i=1;i<=4;i++)t+='<button data-a="team" data-v="'+i+'" class="'+(team===i?'sel':'')+'" aria-pressed="'+(team===i)+'">צוות '+i+'</button>';
+ var resume=P&&!P.end;
+ return '<div class="slate"><div class="sticks"></div><div class="cells" style="grid-template-columns:1fr"><div class="cell"><h1>'+esc(G.title)+'</h1></div></div></div>'+
+  '<div class="card"><p class="big">אתם צוות צילום. בכל סצנה תפענחו רמז, תגיעו למקום הנכון בבית הספר ותצלמו שם שוט בגודל שביקשו מכם.</p>'+
+  '<p>כל שוט שהבמאי מאשר חושף עוד רמז למקום שבו מוחבא האוצר.</p></div>'+
+  (resume?'<button class="primary wide" data-a="resume">ממשיכים לצלם (צוות '+P.team+')</button>':'')+
+  '<div class="card"><span class="eyebrow">'+(resume?'משחק חדש':'בחרו צוות')+'</span><div class="row">'+t+'</div>'+
+  '<button class="'+(resume?'':'primary ')+'wide" data-a="start">'+(resume&&armed!=='start'?'מתחילים משחק חדש':resume?'לחצו שוב: המשחק הקודם יימחק':'אקשן! מתחילים')+'</button></div>'+
+  '<button class="ghost" data-a="gate">מצב מורה</button>';};
+
+V.play=function(){var s=G.stations[cur()],h=slate(),st=P.stage;
+ if(st==='go')h+='<div class="card"><span class="tape">לאן הולכים?</span><p class="big">'+esc(s.clue)+'</p>'+
+   '<p class="muted">פענחו את הרמז ולכו לשם יחד, כל הצוות.</p><button class="primary wide" data-a="arrive">הגענו למקום</button></div>';
+ else if(st==='q'){var o='';s.opts.forEach(function(x,i){if(x)o+='<button class="opt wide'+(P.bad&&P.bad.indexOf(i)>=0?' bad':'')+'" data-a="ans" data-v="'+i+'">'+esc(x)+'</button>';});
+   h+='<div class="card"><span class="tape">שאלת קולנוע</span><p class="big">'+esc(s.q)+'</p><div class="stack">'+o+'</div>'+message()+'</div>';}
+ else if(st==='shoot')h+='<div class="card"><span class="tape">משימת צילום</span><h2>'+SH[s.shot].n+'</h2><p class="big">'+esc(s.task)+'</p>'+
+   (P.hint?fig(s.shot)+'<p class="muted">'+SH[s.shot].d+'</p>':'<button class="ghost" data-a="hint">תזכירו לי מה זה '+SH[s.shot].n+'</button>')+
+   '<button class="primary wide" data-a="cam">מצלמים</button>'+message()+'</div>';
+ else if(st==='review'){h+='<div class="card"><span class="tape">'+(P.checked?'ממתינים לבמאי':'בדיקת שוט')+'</span>'+
+   '<div class="two"><div class="stack"><span class="eyebrow">השוט שלכם</span><div class="vf"><img alt="השוט שצילמתם" src="'+P.pending+'"></div></div>'+
+   '<div class="stack"><span class="eyebrow">'+SH[s.shot].n+' נראה כך</span>'+fig(s.shot)+'</div></div>'+
+   '<p>'+esc(s.task)+'</p><p class="muted">'+SH[s.shot].d+'</p>';
+   if(!P.checked)h+='<p class="big">בדקו בעצמכם: האם גודל השוט שלכם זהה לציור?</p><div class="row"><button class="ok" data-a="check">'+(G.approval==='teacher'?'כן, מראים לבמאי':'כן, השוט תואם')+'</button><button class="cut" data-a="retake">לא. מצלמים שוב</button></div>';
+   else h+='<div class="stats" style="grid-template-columns:1fr"><div><b>'+P.chal+'</b>מספר השוט. הראו לבמאי את השוט ואת המספר.</div></div>'+
+     '<label for="pin">קוד האישור שקיבלתם מהבמאי<input class="pin" id="pin" type="password" inputmode="numeric" autocomplete="off"></label>'+message()+
+     '<div class="row"><button class="ok" data-a="approve">הדפיסו! השוט מאושר</button><button class="cut" data-a="retake">קאט! מצלמים שוב</button></div>';
+   h+='</div>';}
+ else if(st==='reward'){var lastOne=P.pos+1>=G.stations.length;
+   h+='<div class="card"><span class="tape">רמז לאוצר '+(P.pos+1)+' מתוך '+G.stations.length+'</span>'+clueCard(P.pos)+
+   '<button class="primary wide" data-a="next">'+(lastOne?'יוצאים לחפש את האוצר':'לסצנה הבאה')+'</button></div>';}
+ if(P.pos>0&&st!=='reward')h+='<button class="ghost" data-a="clues">הרמזים לאוצר שאספנו ('+P.pos+')</button>';
+ return h+'<button class="ghost" data-a="home">למסך הפתיחה</button>';};
+
+V.clues=function(){var h=slate()+'<div class="card"><h2>הרמזים לאוצר</h2>';
+ for(var i=0;i<P.pos;i++)h+=clueCard(i,'רמז '+(i+1));
+ return h+'</div><button class="primary wide" data-a="resume">חזרה לסצנה</button>';};
+
+V.hunt=function(){var h=slate()+'<div class="card"><span class="tape">הסצנה האחרונה</span><h2>מצאו את האוצר</h2>'+
+  '<p>יש לכם את כל הרמזים, מהפרט הקטן ביותר ועד התמונה הרחבה. על האוצר כתובה מילת קוד.</p>'+
+  '<label for="code">מילת הקוד שעל האוצר<input id="code" type="text" autocomplete="off"></label>'+message()+
+  '<button class="primary wide" data-a="code">מצאנו!</button></div><div class="card">';
+ for(var i=0;i<G.clues.length;i++)h+=clueCard(i,'רמז '+(i+1));
+ return h+'</div><button class="ghost" data-a="home">למסך הפתיחה</button>';};
+
+V.done=function(){var sh='';P.order.forEach(function(si,i){if(P.shots[si])sh+='<figure><div class="vf"><img alt="" src="'+P.shots[si]+'"></div><figcaption>סצנה '+(i+1)+' · '+SH[G.stations[si].shot].n+'</figcaption></figure>';});
+ return slate()+'<div class="card"><span class="tape">זה ראפ!</span><h1>מצאתם את האוצר</h1>'+
+  '<div class="stats"><div><b>'+fmt(P.end-P.start)+'</b>זמן</div><div><b>'+P.takesAll+'</b>טייקים</div><div><b>'+P.wrong+'</b>טעויות בשאלות</div></div></div>'+
+  '<div class="card"><h2>דף הקונטקטים שלכם</h2><p class="muted">כל השוטים שצילמתם בדרך, לפי הסדר. יחד הם מספרים את המסע.</p><div class="sheet">'+sh+'</div></div>'+
+  '<button class="ghost" data-a="home">למסך הפתיחה</button>';};
+
+V.gate=function(){return '<div class="card"><h2>מצב מורה</h2><label for="gpin">קוד מורה<input class="pin" id="gpin" type="password" inputmode="numeric" autocomplete="off"></label>'+
+  '<p class="muted small">הקוד ההתחלתי הוא 1234. אפשר לשנות אותו בפנים.</p>'+message()+
+  '<div class="row"><button class="primary" data-a="enter">כניסה</button><button class="ghost" data-a="home">חזרה</button></div></div>';};
+
+V.edit=function(){var h='<div class="row" style="justify-content:space-between"><h2>הגדרות המשחק</h2><button class="primary" data-a="home">סיימתי</button></div>'+
+ '<div class="card"><span class="tape">אישור שוטים מהמכשיר שלי</span><p>הצוות מראה לכם שוט ומספר שוט. אם השוט טוב, הקלידו כאן את המספר ותנו להם את הקוד.</p>'+
+ '<div class="two"><label>מספר השוט<input class="pin" type="text" id="chal" inputmode="numeric" autocomplete="off"></label>'+
+ '<div class="stats" style="grid-template-columns:1fr"><div><b id="resp">---</b>קוד האישור</div></div></div>'+
+ '<p class="muted small">זה עובד בלי אינטרנט, בתנאי שקוד המורה זהה במכשיר שלכם ובטאבלטים.</p></div>'+
+ '<div class="card"><label>שם המשחק<input type="text" id="e-title" data-f="title" value="'+esc(G.title)+'"></label>'+
+ '<div class="two"><label>קוד מורה<input type="text" id="e-pin" data-f="pin" inputmode="numeric" value="'+esc(G.pin)+'"></label>'+
+ '<label>מילת הקוד שעל האוצר<input type="text" id="e-code" data-f="code" value="'+esc(G.code)+'"></label></div>'+
+ '<label>מי מאשר את השוטים?<select id="e-appr" data-f="approval"><option value="teacher"'+(G.approval==='teacher'?' selected':'')+'>אני, עם קוד מורה</option><option value="self"'+(G.approval==='self'?' selected':'')+'>הצוות בודק את עצמו מול ציור</option></select></label></div>'+
+ '<p class="muted">כל צוות מתחיל מתחנה אחרת (צוות 1 מתחנה 1, צוות 2 מתחנה 2 וכן הלאה), כך שהצוותים לא הולכים זה אחרי זה. רמזי האוצר נחשפים תמיד באותו סדר, מהקרוב אל הרחב.</p>';
+ G.stations.forEach(function(s,i){var p='stations.'+i+'.',so='',ao='';
+  Object.keys(SH).forEach(function(k){so+='<option value="'+k+'"'+(s.shot===k?' selected':'')+'>'+SH[k].n+'</option>';});
+  for(var j=0;j<3;j++)ao+='<option value="'+j+'"'+(s.ans===j?' selected':'')+'>תשובה '+(j+1)+'</option>';
+  h+='<fieldset><legend>תחנה '+(i+1)+'</legend>'+
+  '<div class="two"><label>המקום (רק אתם רואים)<input type="text" id="s'+i+'w" data-f="'+p+'where" value="'+esc(s.where)+'"></label>'+
+  '<label>גודל השוט<select id="s'+i+'s" data-f="'+p+'shot">'+so+'</select></label></div>'+
+  '<label>רמז למקום<textarea id="s'+i+'c" data-f="'+p+'clue">'+esc(s.clue)+'</textarea></label>'+
+  '<label>משימת הצילום<textarea id="s'+i+'t" data-f="'+p+'task">'+esc(s.task)+'</textarea></label>'+
+  '<label>שאלת קולנוע (ריק = בלי שאלה)<input type="text" id="s'+i+'q" data-f="'+p+'q" value="'+esc(s.q)+'"></label>'+
+  '<div class="stack">'+[0,1,2].map(function(j){return '<input type="text" id="s'+i+'o'+j+'" aria-label="תשובה '+(j+1)+'" placeholder="תשובה '+(j+1)+'" data-f="'+p+'opts.'+j+'" value="'+esc(s.opts[j])+'">';}).join('')+'</div>'+
+  '<label>התשובה הנכונה<select id="s'+i+'a" data-f="'+p+'ans" data-n="1">'+ao+'</select></label>'+
+  (G.stations.length>1?'<button class="ghost" data-a="delst" data-v="'+i+'">'+(armed==='del'+i?'לחצו שוב למחיקה':'מחיקת התחנה')+'</button>':'')+'</fieldset>';});
+ h+='<button data-a="addst">הוספת תחנה</button><h2>רמזי האוצר</h2>'+
+ '<p class="muted">צלמו את מקום המחבוא בכמה גדלים. רמז 1 הוא הקרוב ביותר (אקסטרים קלוז־אפ) והאחרון הוא הרחב ביותר. כל שוט מאושר חושף את הרמז הבא.</p>';
+ G.clues.forEach(function(c,i){h+='<fieldset><legend>רמז '+(i+1)+'</legend>'+(c.img?'<div class="vf fit"><img alt="" src="'+c.img+'"></div>':'')+
+  '<label>טקסט הרמז<textarea id="c'+i+'t" data-f="clues.'+i+'.text">'+esc(c.text)+'</textarea></label>'+
+  '<div class="row"><button class="ghost" data-a="cluecam" data-v="'+i+'">'+(c.img?'החלפת תמונה':'צילום או בחירת תמונה')+'</button>'+(c.img?'<button class="ghost" data-a="cluedel" data-v="'+i+'">הסרת התמונה</button>':'')+'</div></fieldset>';});
+ h+='<div class="card"><h2>העברה לטאבלטים אחרים</h2><p class="muted">שמרו את המשחק כקובץ אחד (כולל התמונות), העבירו אותו לטאבלט אחר וטענו אותו שם.</p>'+
+ '<div class="row"><button data-a="exp">שמירת המשחק כקובץ</button><button data-a="imp">טעינת משחק מקובץ</button></div>'+message()+'</div>'+
+ '<div class="card"><h2>איפוס</h2><div class="row"><button class="cut" data-a="resetp">'+(armed==='resetp'?'לחצו שוב לאישור':'מחיקת ההתקדמות בטאבלט הזה')+'</button>'+
+ '<button class="cut" data-a="resetg">'+(armed==='resetg'?'לחצו שוב לאישור':'חזרה למשחק הדוגמה')+'</button></div></div>';
+ return h;};
+
+function render(keep){app.innerHTML=V[view]();if(!keep)window.scrollTo(0,0);}
+function go(v){view=v;msg='';armed='';render();}
+function arm(k){if(armed===k){armed='';return true;}armed=k;render(true);return false;}
+
+/* ---------- actions ---------- */
+var A={
+ team:function(v){team=+v;armed='';render(true);},
+ start:function(){if(P&&!P.end&&!arm('start'))return;var n=G.stations.length,o=[];for(var i=0;i<n;i++)o.push((i+team-1)%n);
+  P={team:team,start:Date.now(),order:o,pos:0,stage:'go',takes:0,takesAll:0,wrong:0,shots:{},bad:[]};saveP();go('play');},
+ resume:function(){go(P.end?'done':P.pos>=G.stations.length?'hunt':'play');},
+ home:function(){unlocked=false;go('home');},
+ arrive:function(){P.stage=G.stations[cur()].q?'q':'shoot';saveP();go('play');},
+ ans:function(v){var s=G.stations[cur()];if(+v===s.ans){P.stage='shoot';P.bad=[];saveP();go('play');msg='נכון מאוד!';msgGood=true;render();}
+  else{P.wrong++;P.bad.push(+v);saveP();msg='לא מדויק. נסו שוב.';msgGood=false;render(true);}},
+ hint:function(){P.hint=true;saveP();render(true);},
+ cam:function(){camFor='shot';document.getElementById('cam').click();},
+ check:function(){if(G.approval==='teacher'){P.checked=true;saveP();render(true);}else A.approve();},
+ retake:function(){P.checked=false;P.pending='';P.stage='shoot';saveP();go('play');},
+ approve:function(){if(G.approval==='teacher'){var p=document.getElementById('pin').value.trim();if(p!==String(G.pin)&&p!==resp(P.chal)){msg='קוד שגוי. רק הבמאי מאשר שוטים.';msgGood=false;render(true);return;}}
+  P.shots[cur()]=P.pending;P.pending='';P.checked=false;P.stage='reward';saveP();go('play');},
+ next:function(){P.pos++;P.takes=0;P.hint=false;P.stage='go';saveP();go(P.pos>=G.stations.length?'hunt':'play');},
+ clues:function(){go('clues');},
+ code:function(){if(norm(document.getElementById('code').value)===norm(G.code)){P.end=Date.now();saveP();go('done');}
+  else{msg='זו לא מילת הקוד. המשיכו לחפש!';msgGood=false;render(true);}},
+ gate:function(){go('gate');},
+ enter:function(){if(document.getElementById('gpin').value===String(G.pin)){unlocked=true;go('edit');}else{msg='קוד שגוי.';render(true);}},
+ addst:function(){G.stations.push({clue:'',where:'',q:'',opts:['','',''],ans:0,shot:'MS',task:''});syncClues();saveG();render(true);},
+ delst:function(v){if(!arm('del'+v))return;G.stations.splice(+v,1);syncClues();saveG();render(true);},
+ cluecam:function(v){camFor={clue:+v};document.getElementById('pick').click();},
+ cluedel:function(v){G.clues[+v].img='';saveG();render(true);},
+ exp:function(){try{var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(G)],{type:'application/json'}));a.download='frame-adventure.json';document.body.appendChild(a);a.click();a.remove();msg='הקובץ נשמר בהורדות.';msgGood=true;}catch(e){msg='השמירה נכשלה בדפדפן הזה.';msgGood=false;}render(true);},
+ imp:function(){document.getElementById('imp').click();},
+ resetp:function(){if(!arm('resetp'))return;P=null;save('prog',null);msg='ההתקדמות נמחקה.';msgGood=true;render(true);},
+ resetg:function(){if(!arm('resetg'))return;G=defaults();saveG();render(true);}
+};
+app.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.getAttribute('data-a');
+ if(a!==armed.replace(/\d+$/,'')&&['start','delst','resetp','resetg'].indexOf(a)<0)armed='';msg='';A[a](b.getAttribute('data-v'));});
+app.addEventListener('input',function(e){if(e.target.id==='chal'||e.target.id==='e-pin'){var c=document.getElementById('chal').value.trim();setTimeout(function(){document.getElementById('resp').textContent=c?resp(c):'---';},0);}
+ var f=e.target.getAttribute&&e.target.getAttribute('data-f');if(!f||!unlocked)return;
+ var parts=f.split('.'),o=G;for(var i=0;i<parts.length-1;i++)o=o[parts[i]];
+ o[parts[parts.length-1]]=e.target.getAttribute('data-n')?+e.target.value:e.target.value;saveG();});
+app.addEventListener('keydown',function(e){if(e.key!=='Enter'||e.target.tagName!=='INPUT')return;
+ var m={pin:'approve',gpin:'enter',code:'code'}[e.target.id];if(m){e.preventDefault();A[m]();}});
+
+/* ---------- photos: shrink before storing so the tablet does not fill up ---------- */
+function shrink(file,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){
+  var m=1280,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+  c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.72));};im.onerror=function(){cb('');};im.src=r.result;};
+ r.onerror=function(){cb('');};r.readAsDataURL(file);}
+function onPhoto(e){var f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;shrink(f,function(d){
+  if(!d){msg='לא הצלחנו לקרוא את התמונה. נסו שוב.';msgGood=false;render(true);return;}
+  if(camFor==='shot'){P.pending=d;P.checked=false;P.chal=10+Math.floor(Math.random()*90);P.takes++;P.takesAll++;P.stage='review';saveP();go('play');}
+  else if(camFor&&G.clues[camFor.clue]){G.clues[camFor.clue].img=d;saveG();render(true);}});}
+document.getElementById('cam').addEventListener('change',onPhoto);
+document.getElementById('pick').addEventListener('change',onPhoto);
+document.getElementById('imp').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+ var r=new FileReader();r.onload=function(){try{var g=JSON.parse(r.result);if(!g.stations||!g.stations.length||!g.clues)throw 0;G=g;syncClues();saveG();msg='המשחק נטען.';msgGood=true;}
+  catch(x){msg='זה לא קובץ משחק תקין.';msgGood=false;}render(true);};r.readAsText(f);});
+
+setInterval(function(){var c=document.getElementById('clock');if(c&&P&&!P.end)c.textContent=fmt(Date.now()-P.start);},1000);
+Promise.all([load('game'),load('prog')]).then(function(r){if(r[0]&&r[0].stations)G=r[0];if(r[1])P=r[1];if(P)team=P.team;syncClues();render();},function(){render();});
+render();
+try{if('serviceWorker' in navigator&&location.protocol==='https:'&&window.top===window.self)navigator.serviceWorker.register('sw.js').catch(function(){});}catch(e){}
+})();
+</script>
+<!--/body-->
+</body>
+</html>
