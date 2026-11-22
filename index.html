@@ -282,10 +282,13 @@ V.home=function(){var t='',lad='';for(var i=1;i<=G.teams;i++)t+='<button data-a=
   '<div class="row" style="justify-content:center">'+muteBtn()+'<button class="ghost" data-a="gate">מצב מורה</button></div>';};
 
 V.play=function(){var s=G.stations[cur()],h=slate(),st=P.stage;
- if(st==='go')h+='<div class="card"><span class="tape">לאן הולכים?</span><p class="big">'+esc(s.clue)+'</p>'+
-   '<p class="muted">פענחו את הרמז ולכו לשם יחד, כל הצוות.</p><button class="primary wide" data-a="arrive">הגענו למקום</button></div>';
+ if(st==='go')h+='<div class="card"><span class="tape">'+(s.type==='mission'?'את מי מחפשים?':'לאן הולכים?')+'</span>'+(s.img?'<div class="vf fit"><img alt="תמונת רמז" src="'+s.img+'"></div>':'')+'<p class="big">'+esc(s.clue)+'</p>'+
+   '<p class="muted">פענחו את הרמז ולכו לשם יחד, כל הצוות.</p><button class="primary wide" data-a="arrive">'+(s.type==='mission'?'מצאנו':'הגענו למקום')+'</button></div>';
  else if(st==='q'){var o='';s.opts.forEach(function(x,i){if(x)o+='<button class="opt wide'+(P.bad&&P.bad.indexOf(i)>=0?' bad':'')+'" data-a="ans" data-v="'+i+'">'+esc(x)+'</button>';});
    h+='<div class="card"><span class="tape">שאלת קולנוע</span><p class="big">'+esc(s.q)+'</p><div class="stack">'+o+'</div>'+message()+'</div>';}
+ else if(st==='shoot'&&s.type==='mission')h+='<div class="card"><span class="tape">משימה · 100 נקודות</span><p class="big">'+esc(s.task)+'</p>'+
+   '<label for="mcode">קוד ההצלחה (מקליד רק מי שנמצא בתחנה)<input class="pin" id="mcode" type="password" autocomplete="off"></label>'+message()+
+   '<div class="row"><button class="ok" data-a="mdone">הצלחנו!</button><button class="cut" data-a="mskip">'+(armed==='mskip'?'לחצו שוב: ממשיכים בלי נקודות':'לא הצליח לנו')+'</button></div></div>';
  else if(st==='shoot')h+='<div class="card"><span class="tape">משימת צילום</span><h2>'+SH[s.shot].n+'</h2><p class="big">'+esc(s.task)+'</p>'+
    (P.hint?fig(s.shot)+'<p class="muted">'+SH[s.shot].d+'</p>':'<button class="ghost" data-a="hint">תזכירו לי מה זה '+SH[s.shot].n+'</button>')+
    '<button class="shutter" data-a="cam" aria-label="מצלמים"><span></span></button><p class="shutlbl">מצלמים</p>'+message()+'</div>';
@@ -347,10 +350,14 @@ V.edit=function(){var h='<div class="row" style="justify-content:space-between">
   Object.keys(SH).forEach(function(k){so+='<option value="'+k+'"'+(s.shot===k?' selected':'')+'>'+SH[k].n+'</option>';});
   for(var j=0;j<3;j++)ao+='<option value="'+j+'"'+(s.ans===j?' selected':'')+'>תשובה '+(j+1)+'</option>';
   h+='<fieldset><legend>תחנה '+(i+1)+'</legend>'+
-  '<div class="two"><label>המקום (רק אתם רואים)<input type="text" id="s'+i+'w" data-f="'+p+'where" value="'+esc(s.where)+'"></label>'+
-  '<label>גודל השוט<select id="s'+i+'s" data-f="'+p+'shot">'+so+'</select></label></div>'+
-  '<label>רמז למקום<textarea id="s'+i+'c" data-f="'+p+'clue">'+esc(s.clue)+'</textarea></label>'+
-  '<label>משימת הצילום<textarea id="s'+i+'t" data-f="'+p+'task">'+esc(s.task)+'</textarea></label>'+
+  '<div class="two"><label>סוג התחנה<select id="s'+i+'y" data-f="'+p+'type"><option value="shot"'+(s.type!=='mission'?' selected':'')+'>צילום שוט</option><option value="mission"'+(s.type==='mission'?' selected':'')+'>משימה אצל אדם (למשל מורה)</option></select></label>'+
+  '<label>קוד הצלחה (רק לתחנת משימה)<input type="text" id="s'+i+'m" data-f="'+p+'mcode" value="'+esc(s.mcode||'')+'"></label></div>'+
+  '<div class="two"><label>המקום או האדם (רק אתם רואים)<input type="text" id="s'+i+'w" data-f="'+p+'where" value="'+esc(s.where)+'"></label>'+
+  '<label>גודל השוט (רק לתחנת צילום)<select id="s'+i+'s" data-f="'+p+'shot">'+so+'</select></label></div>'+
+  '<label>רמז למקום או לאדם<textarea id="s'+i+'c" data-f="'+p+'clue">'+esc(s.clue)+'</textarea></label>'+
+  (s.img?'<div class="vf fit"><img alt="" src="'+s.img+'"></div>':'')+
+  '<div class="row"><button class="ghost" data-a="stcam" data-v="'+i+'">'+(s.img?'החלפת תמונת הרמז':'תמונה לרמז (למשל צילום של המורה)')+'</button>'+(s.img?'<button class="ghost" data-a="stdel" data-v="'+i+'">הסרת התמונה</button>':'')+'</div>'+
+  '<label>המשימה (צילום, או מה עושים אצל האדם)<textarea id="s'+i+'t" data-f="'+p+'task">'+esc(s.task)+'</textarea></label>'+
   '<label>שאלת קולנוע (ריק = בלי שאלה)<input type="text" id="s'+i+'q" data-f="'+p+'q" value="'+esc(s.q)+'"></label>'+
   '<div class="stack">'+[0,1,2].map(function(j){return '<input type="text" id="s'+i+'o'+j+'" aria-label="תשובה '+(j+1)+'" placeholder="תשובה '+(j+1)+'" data-f="'+p+'opts.'+j+'" value="'+esc(s.opts[j])+'">';}).join('')+'</div>'+
   '<label>התשובה הנכונה<select id="s'+i+'a" data-f="'+p+'ans" data-n="1">'+ao+'</select></label>'+
@@ -395,6 +402,11 @@ var A={
   snd('win');var g=100+(P.takes===1?20:0);P.score+=g;P.gain='קיבלתם '+g+' נקודות'+(P.takes===1?', כולל בונוס על טייק ראשון.':'.');P.lastB=null;P.shots[cur()]=P.pending;P.pending='';P.checked=false;P.stage='reward';saveP();go('play');},
  next:function(){P.pos++;P.takes=0;P.hint=false;P.stage='go';saveP();go(P.pos>=G.stations.length?'hunt':'play');},
  clues:function(){go('clues');},
+ mdone:function(){var s=G.stations[cur()],p=document.getElementById('mcode').value;if(!norm(p)||(norm(p)!==norm(s.mcode)&&p.trim()!==String(G.pin))){snd('bad');msg='קוד שגוי. רק מי שנמצא בתחנה מאשר את המשימה.';msgGood=false;render(true);return;}
+  snd('win');P.score+=100;P.gain='המשימה הצליחה! קיבלתם 100 נקודות.';P.lastB=null;P.stage='reward';saveP();go('play');},
+ mskip:function(){if(!arm('mskip'))return;P.gain='הפעם בלי נקודות, אבל הרמז שלכם.';P.lastB=null;P.stage='reward';saveP();go('play');},
+ stcam:function(v){camFor={st:+v};document.getElementById('pick').click();},
+ stdel:function(v){G.stations[+v].img='';saveG();render(true);},
  mute:function(){mute=(mute+1)%3;save('mute',mute);render(true);},
  addteam:function(){G.teams++;team=G.teams;saveG();render(true);},
  bonus:function(v){var i=nextBonus();if(i<0)return;var b=G.bonus[i],ok=+v===b.ans;P.bonus[i]=ok;snd(ok?'good':'bad');if(ok)P.score+=50;
@@ -408,7 +420,7 @@ var A={
   else{snd('bad');msg='זו לא מילת הקוד. המשיכו לחפש!';msgGood=false;render(true);}},
  gate:function(){go('gate');},
  enter:function(){if(document.getElementById('gpin').value===String(G.pin)){unlocked=true;go('edit');}else{snd('bad');msg='קוד שגוי.';render(true);}},
- addst:function(){G.stations.push({clue:'',where:'',q:'',opts:['','',''],ans:0,shot:'MS',task:''});syncClues();saveG();render(true);},
+ addst:function(){G.stations.push({clue:'',where:'',q:'',opts:['','',''],ans:0,shot:'MS',task:'',type:'shot',mcode:'',img:''});syncClues();saveG();render(true);},
  delst:function(v){if(!arm('del'+v))return;G.stations.splice(+v,1);syncClues();saveG();render(true);},
  cluecam:function(v){camFor={clue:+v};document.getElementById('pick').click();},
  cluedel:function(v){G.clues[+v].img='';saveG();render(true);},
@@ -418,13 +430,13 @@ var A={
  resetg:function(){if(!arm('resetg'))return;G=defaults();saveG();render(true);}
 };
 app.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.getAttribute('data-a');
- if(a!==armed.replace(/\d+$/,'')&&['start','delst','delbq','resetp','resetg'].indexOf(a)<0)armed='';msg='';cue='click';A[a](b.getAttribute('data-v'));play(cue);});
+ if(a!==armed.replace(/\d+$/,'')&&['start','delst','delbq','resetp','resetg','mskip'].indexOf(a)<0)armed='';msg='';cue='click';A[a](b.getAttribute('data-v'));play(cue);});
 app.addEventListener('input',function(e){if(e.target.id==='chal'||e.target.id==='e-pin'){var c=document.getElementById('chal').value.trim();setTimeout(function(){document.getElementById('resp').textContent=c?resp(c):'---';},0);}
  var f=e.target.getAttribute&&e.target.getAttribute('data-f');if(!f||!unlocked)return;
  var parts=f.split('.'),o=G;for(var i=0;i<parts.length-1;i++)o=o[parts[i]];
  o[parts[parts.length-1]]=e.target.getAttribute('data-n')?(+e.target.value||0):e.target.value;saveG();});
 app.addEventListener('keydown',function(e){if(e.key!=='Enter'||e.target.tagName!=='INPUT')return;
- var m={pin:'approve',gpin:'enter',code:'code',tpin:'moretime'}[e.target.id];if(m){e.preventDefault();cue='';A[m]();play(cue);}});
+ var m={pin:'approve',gpin:'enter',code:'code',tpin:'moretime',mcode:'mdone'}[e.target.id];if(m){e.preventDefault();cue='';A[m]();play(cue);}});
 
 /* ---------- photos: shrink before storing so the tablet does not fill up ---------- */
 function shrink(file,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){
@@ -434,6 +446,7 @@ function shrink(file,cb){var r=new FileReader();r.onload=function(){var im=new I
 function onPhoto(e){var f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;shrink(f,function(d){
   if(!d){msg='לא הצלחנו לקרוא את התמונה. נסו שוב.';msgGood=false;render(true);return;}
   if(camFor==='shot'){P.pending=d;P.checked=false;P.chal=10+Math.floor(Math.random()*90);P.takes++;P.takesAll++;P.stage='review';saveP();go('play');}
+  else if(camFor&&camFor.st!=null&&G.stations[camFor.st]){G.stations[camFor.st].img=d;saveG();render(true);}
   else if(camFor&&G.clues[camFor.clue]){G.clues[camFor.clue].img=d;saveG();render(true);}});}
 document.getElementById('cam').addEventListener('change',onPhoto);
 document.getElementById('pick').addEventListener('change',onPhoto);
