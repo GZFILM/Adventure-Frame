@@ -183,7 +183,7 @@ function EYE(x){return '<ellipse cx="'+x+'" cy="99.800" rx="1.050" ry=".68" fill
 function fig(k){return '<div class="vf"><svg viewBox="'+SH[k].vb+'" preserveAspectRatio="xMidYMid slice" role="img" aria-label="'+SH[k].n+'">'+SCENE+'</svg><div class="g"></div><span class="tag">'+k+'</span></div>';}
 
 /* ---------- default game (an example route — the teacher replaces it) ---------- */
-var VER=4;function defaults(){return{v:VER,minutes:30,teams:4,title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
+var VER=5;function defaults(){return{v:VER,minutes:30,teams:4,perSt:3,title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
  stations:[
   {clue:'המקום שבו הכדור תמיד בפריים.',where:'מגרש הספורט',q:'איך קוראים בקולנוע למקום שבו מצלמים סצנה?',opts:['טריילר','לוקיישן','פסקול'],ans:1,shot:'ELS',task:'צלמו את כל המגרש, כשחבר צוות אחד עומד רחוק במרכז.'},
   {clue:'אלפי סיפורים מחכים שם בשקט על המדפים.',where:'הספרייה',q:'הרבה סרטים מתחילים מספר. איזה מהסרטים האלה נעשה על פי סדרת ספרים?',opts:['צעצוע של סיפור','שרק 2','הארי פוטר'],ans:2,shot:'MS',task:'צלמו חבר צוות מחזיק ספר, מהמותניים ומעלה.'},
@@ -203,7 +203,14 @@ var VER=4;function defaults(){return{v:VER,minutes:30,teams:4,title:'פריים 
   {q:'מה זה סטוריבורד?',opts:['רשימת השחקנים','ציורים של השוטים לפני הצילום','המוזיקה של הסרט'],ans:1},
   {q:'מצלמה שמצלמת מלמעלה גורמת לדמות להיראות...',opts:['חזקה ומאיימת','קטנה וחלשה','מהירה יותר'],ans:1},
   {q:'מה עושה העורך?',opts:['מחבר את השוטים לסרט אחד','מחזיק את המיקרופון','מאפר את השחקנים'],ans:0},
-  {q:'איך נקרא שוט שמצולם מנקודת המבט של הדמות?',opts:['POV','ELS','REC'],ans:0}
+  {q:'איך נקרא שוט שמצולם מנקודת המבט של הדמות?',opts:['POV','ELS','REC'],ans:0},
+  {q:'מה זה פסקול?',opts:['רשימת השחקנים','המוזיקה והקולות של הסרט','הכרזה של הסרט'],ans:1},
+  {q:'איך קוראים לקטע קצר שמפרסם סרט לפני שהוא יוצא?',opts:['טריילר','תסריט','קלוז־אפ'],ans:0},
+  {q:'מה זה סרט אנימציה?',opts:['סרט בלי קול','סרט קצר מאוד','סרט מצויר או ממוחשב'],ans:2},
+  {q:'מה מקישים מול המצלמה לפני כל טייק?',opts:['חצובה','קלאפר','מיקרופון'],ans:1},
+  {q:'על מה מעמידים את המצלמה כדי שלא תזוז?',opts:['חצובה','קלאפר','פנס'],ans:0},
+  {q:'מה עושה התאורן?',opts:['כותב את התסריט','בוחר את השחקנים','אחראי על האור בצילום'],ans:2},
+  {q:'כמה תמונות בערך יש בשנייה אחת של סרט?',opts:['2','24','1000'],ans:1}
  ],
  clues:[
   {text:'אקסטרים קלוז־אפ: האוצר נוגע במשהו חום ומחוספס.',img:''},
@@ -241,17 +248,18 @@ function fmt(ms){var s=Math.max(0,Math.floor(ms/1000));return Math.floor(s/60)+'
 function left(){return (+G.minutes||0)*60000-(Date.now()-P.t0);}
 function clock(){return P.end?fmt(P.end-P.start):+G.minutes?fmt(left()):fmt(Date.now()-P.start);}
 function nextBonus(){for(var i=0;i<G.bonus.length;i++)if(!(i in P.bonus))return i;return -1;}
-function bonusCard(){if(!G.bonus.length)return '';var i=nextBonus(),h='<div class="card"><span class="tape">שאלות בונוס · 50 נקודות לכל תשובה נכונה</span>'+
+function bonusCard(){if(!G.bonus.length)return '';if(!+G.perSt)return '';var i=nextBonus(),n=P.bAt||0,h='<div class="card"><span class="tape">שאלות בונוס · 50 נקודות לכל תשובה נכונה</span>'+
   (P.lastB?'<p class="msg'+(P.lastB.ok?' good':'')+'" role="status">'+esc(P.lastB.t)+'</p>':'');
  if(i<0)return h+'<p class="muted">עניתם על כל שאלות הבונוס.</p></div>';
+ if(n>=+G.perSt)return h+'<p class="muted">סיימתם את שאלות הבונוס של התחנה הזאת. שאלות חדשות מחכות בתחנה הבאה.</p></div>';
  var b=G.bonus[i],o='';b.opts.forEach(function(x,j){if(x)o+='<button class="opt bq wide" data-a="bonus" data-v="'+j+'">'+esc(x)+'</button>';});
- return h+'<p class="eyebrow">שאלה '+(i+1)+' מתוך '+G.bonus.length+' · יש רק ניסיון אחד</p><p class="big">'+esc(b.q)+'</p><div class="stack">'+o+'</div></div>';}
+ return h+'<p class="eyebrow">שאלה '+(n+1)+' מתוך '+G.perSt+' בתחנה הזאת · יש רק ניסיון אחד</p><p class="big">'+esc(b.q)+'</p><div class="stack">'+o+'</div></div>';}
 function cur(){return P.order[P.pos];}
 function norm(s){return String(s||'').replace(/\s+/g,'').toLowerCase();}
 /* one-time approval code: the director's own device turns the shot number into a code, so the pupils never see the teacher PIN */
 function resp(c){var s=String(G.pin)+'#'+c,x=7;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))%1000003;return('00'+x%1000).slice(-3);}
 function timeUp(){if(!P||P.end||!+G.minutes||left()>0)return false;if(!P.chal2){P.chal2=10+Math.floor(Math.random()*90);saveP();}return true;}
-function syncClues(){if(!G.bonus)G.bonus=[];if(!G.teams)G.teams=4;if(G.minutes==null)G.minutes=30;while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
+function syncClues(){if(!G.bonus)G.bonus=[];if(G.perSt==null)G.perSt=3;if(!G.teams)G.teams=4;if(G.minutes==null)G.minutes=30;while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
 
 /* ---------- views ---------- */
 function muteBtn(){return '<button class="ghost" data-a="mute">צלילים: '+MUTE[mute]+'</button>';}
@@ -367,7 +375,8 @@ V.edit=function(){var h='<div class="row" style="justify-content:space-between">
  G.clues.forEach(function(c,i){h+='<fieldset><legend>רמז '+(i+1)+'</legend>'+(c.img?'<div class="vf fit"><img alt="" src="'+c.img+'"></div>':'')+
   '<label>טקסט הרמז (אפשר טקסט בלבד, תמונה בלבד, או שניהם)<textarea id="c'+i+'t" data-f="clues.'+i+'.text">'+esc(c.text)+'</textarea></label>'+
   '<div class="row"><button class="ghost" data-a="cluecam" data-v="'+i+'">'+(c.img?'החלפת תמונה':'צילום או בחירת תמונה')+'</button>'+(c.img?'<button class="ghost" data-a="cluedel" data-v="'+i+'">הסרת התמונה</button>':'')+'</div></fieldset>';});
- h+='<h2>שאלות בונוס</h2><p class="muted">מופיעות מתחת לכל תחנה. כל צוות עונה בקצב שלו, ויש ניסיון אחד לכל שאלה.</p>';
+ h+='<h2>שאלות בונוס</h2><p class="muted">בכל תחנה נפתחות כמה שאלות מהרשימה, לפי הסדר, ויש ניסיון אחד לכל שאלה. אם השאלות ברשימה נגמרות, בתחנות האחרונות לא יופיע בונוס.</p>'+
+ '<label>כמה שאלות בונוס בכל תחנה (0 = בלי בונוס)<input type="text" id="e-per" data-f="perSt" data-n="1" inputmode="numeric" value="'+esc(G.perSt)+'" style="max-width:120px"></label>';
  G.bonus.forEach(function(b,i){var ao='';for(var j=0;j<3;j++)ao+='<option value="'+j+'"'+(b.ans===j?' selected':'')+'>תשובה '+(j+1)+'</option>';
   h+='<fieldset><legend>בונוס '+(i+1)+'</legend><label>השאלה<input type="text" id="b'+i+'q" data-f="bonus.'+i+'.q" value="'+esc(b.q)+'"></label>'+
   '<div class="stack">'+[0,1,2].map(function(j){return '<input type="text" id="b'+i+'o'+j+'" aria-label="תשובה '+(j+1)+'" placeholder="תשובה '+(j+1)+'" data-f="bonus.'+i+'.opts.'+j+'" value="'+esc(b.opts[j])+'">';}).join('')+'</div>'+
@@ -400,7 +409,7 @@ var A={
  retake:function(){P.checked=false;P.pending='';P.stage='shoot';saveP();go('play');},
  approve:function(){if(G.approval==='teacher'){var p=document.getElementById('pin').value.trim();if(p!==String(G.pin)&&p!==resp(P.chal)){snd('bad');msg='קוד שגוי. רק הבמאי מאשר שוטים.';msgGood=false;render(true);return;}}
   snd('win');var g=100+(P.takes===1?20:0);P.score+=g;P.gain='קיבלתם '+g+' נקודות'+(P.takes===1?', כולל בונוס על טייק ראשון.':'.');P.lastB=null;P.shots[cur()]=P.pending;P.pending='';P.checked=false;P.stage='reward';saveP();go('play');},
- next:function(){P.pos++;P.takes=0;P.hint=false;P.stage='go';saveP();go(P.pos>=G.stations.length?'hunt':'play');},
+ next:function(){P.bAt=0;P.pos++;P.takes=0;P.hint=false;P.stage='go';saveP();go(P.pos>=G.stations.length?'hunt':'play');},
  clues:function(){go('clues');},
  mdone:function(){var s=G.stations[cur()],p=document.getElementById('mcode').value;if(!norm(p)||(norm(p)!==norm(s.mcode)&&p.trim()!==String(G.pin))){snd('bad');msg='קוד שגוי. רק מי שנמצא בתחנה מאשר את המשימה.';msgGood=false;render(true);return;}
   snd('win');P.score+=100;P.gain='המשימה הצליחה! קיבלתם 100 נקודות.';P.lastB=null;P.stage='reward';saveP();go('play');},
@@ -409,7 +418,7 @@ var A={
  stdel:function(v){G.stations[+v].img='';saveG();render(true);},
  mute:function(){mute=(mute+1)%3;save('mute',mute);render(true);},
  addteam:function(){G.teams++;team=G.teams;saveG();render(true);},
- bonus:function(v){var i=nextBonus();if(i<0)return;var b=G.bonus[i],ok=+v===b.ans;P.bonus[i]=ok;snd(ok?'good':'bad');if(ok)P.score+=50;
+ bonus:function(v){var i=nextBonus();if(i<0)return;var b=G.bonus[i],ok=+v===b.ans;P.bonus[i]=ok;P.bAt=(P.bAt||0)+1;snd(ok?'good':'bad');if(ok)P.score+=50;
   P.lastB={ok:ok,t:ok?'נכון! קיבלתם 50 נקודות.':'לא נכון. התשובה הנכונה: '+b.opts[b.ans]};saveP();render(true);},
  addbq:function(){G.bonus.push({q:'',opts:['','',''],ans:0});saveG();render(true);},
  delbq:function(v){if(!arm('bq'+v))return;G.bonus.splice(+v,1);saveG();render(true);},
