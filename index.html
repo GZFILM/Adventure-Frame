@@ -132,17 +132,19 @@ var SCENE='<rect class="f-sky" x="0" y="0" width="400" height="160"/><circle cla
 function fig(k){return '<div class="vf"><svg viewBox="'+SH[k].vb+'" preserveAspectRatio="xMidYMid slice" role="img" aria-label="'+SH[k].n+'">'+SCENE+'</svg></div>';}
 
 /* ---------- default game (an example route — the teacher replaces it) ---------- */
-function defaults(){return{title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
+var VER=2;function defaults(){return{v:VER,title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
  stations:[
   {clue:'המקום שבו הכדור תמיד בפריים.',where:'מגרש הספורט',q:'באיזה שוט רואים את כל המקום, והדמות קטנה מאוד?',opts:['קלוז־אפ','לונג שוט קיצוני','מדיום שוט'],ans:1,shot:'ELS',task:'צלמו את כל המגרש, כשחבר צוות אחד עומד רחוק במרכז.'},
   {clue:'אלפי סיפורים מחכים שם בשקט על המדפים.',where:'הספרייה',q:'איך קוראים לשוט שמראה דמות מהמותניים ומעלה?',opts:['מדיום שוט','לונג שוט','אקסטרים קלוז־אפ'],ans:0,shot:'MS',task:'צלמו חבר צוות מחזיק ספר, מהמותניים ומעלה.'},
   {clue:'כאן כל יום לימודים מתחיל ונגמר.',where:'שער בית הספר',q:'מי מחליט איפה תעמוד המצלמה ומה יהיה בפריים?',opts:['המפיק','העורך','הבמאי והצלם'],ans:2,shot:'LS',task:'צלמו חבר צוות ליד השער, מהראש ועד הרגליים.'},
   {clue:'המקום שמרווה את הצמא בהפסקה.',where:'הברזייה',q:'איזה שוט הכי מתאים כדי להראות רגש על הפנים?',opts:['לונג שוט קיצוני','לונג שוט','קלוז־אפ'],ans:2,shot:'ECU',task:'צלמו ברז או טיפת מים ממש מקרוב, כך שרק הם ממלאים את הפריים.'},
-  {clue:'הלב של בית הספר. לשם פונים כשצריך עזרה.',where:'המזכירות',q:'מה אומר חוק השלישים?',opts:['שמים את הנושא תמיד בדיוק במרכז','מחלקים את הפריים לשלושה חלקים וממקמים את הנושא על הקווים','מצלמים כל שוט שלוש פעמים'],ans:1,shot:'CU',task:'צלמו פנים של חבר צוות עם הבעה של הפתעה.'}
+  {clue:'כשהצלצול של ההפסקה נשמע, כולם רצים לשם.',where:'החצר',q:'מה אומר חוק השלישים?',opts:['שמים את הנושא תמיד בדיוק במרכז','מחלקים את הפריים לשלושה חלקים וממקמים את הנושא על הקווים','מצלמים כל שוט שלוש פעמים'],ans:1,shot:'CU',task:'צלמו פנים של חבר צוות עם הבעה של הפתעה.'},
+  {clue:'דרך ארוכה עם דלתות משני הצדדים. בשיעור שקט בה, בהפסקה רועש.',where:'המסדרון',q:'איך נראית דמות כשמצלמים אותה מלמטה, בזווית נמוכה?',opts:['קטנה וחלשה','גדולה וחזקה','בדיוק כמו בגובה העיניים'],ans:1,shot:'MCU',task:'צלמו חבר צוות מהחזה ומעלה, כשהמסדרון הארוך נמשך מאחוריו.'}
  ],
  clues:[
   {text:'אקסטרים קלוז־אפ: האוצר נוגע במשהו חום ומחוספס.',img:''},
   {text:'קלוז־אפ: יש לידו עלים ירוקים.',img:''},
+  {text:'מדיום קלוז־אפ: הוא נמצא בגובה הברכיים שלכם.',img:''},
   {text:'מדיום שוט: הוא מסתתר מתחת למשהו שיושבים עליו.',img:''},
   {text:'לונג שוט: זה בחוץ, בחצר, ליד עץ גדול.',img:''},
   {text:'לונג שוט קיצוני: העץ הגדול שליד המגרש. חפשו מתחת לספסל!',img:''}
@@ -324,11 +326,11 @@ function onPhoto(e){var f=e.target.files&&e.target.files[0];e.target.value='';if
 document.getElementById('cam').addEventListener('change',onPhoto);
 document.getElementById('pick').addEventListener('change',onPhoto);
 document.getElementById('imp').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
- var r=new FileReader();r.onload=function(){try{var g=JSON.parse(r.result);if(!g.stations||!g.stations.length||!g.clues)throw 0;G=g;syncClues();saveG();msg='המשחק נטען.';msgGood=true;}
+ var r=new FileReader();r.onload=function(){try{var g=JSON.parse(r.result);if(!g.stations||!g.stations.length||!g.clues)throw 0;g.v=VER;G=g;syncClues();saveG();msg='המשחק נטען.';msgGood=true;}
   catch(x){msg='זה לא קובץ משחק תקין.';msgGood=false;}render(true);};r.readAsText(f);});
 
 setInterval(function(){var c=document.getElementById('clock');if(c&&P&&!P.end)c.textContent=fmt(Date.now()-P.start);},1000);
-Promise.all([load('game'),load('prog')]).then(function(r){if(r[0]&&r[0].stations)G=r[0];if(r[1])P=r[1];if(P)team=P.team;syncClues();render();},function(){render();});
+Promise.all([load('game'),load('prog')]).then(function(r){if(r[0]&&r[0].stations&&r[0].v===VER)G=r[0];else if(r[1]){r[1]=null;save('prog',null);}if(r[1])P=r[1];if(P)team=P.team;syncClues();render();},function(){render();});
 render();
 try{if('serviceWorker' in navigator&&location.protocol==='https:'&&window.top===window.self)navigator.serviceWorker.register('sw.js').catch(function(){});}catch(e){}
 })();
