@@ -66,6 +66,11 @@ p{margin:0}
 .clue .vf{border-color:#7a4a1c}
 .score{font-family:var(--title);font-size:clamp(64px,18vw,104px);line-height:1;text-align:center;background:linear-gradient(#fff0b0 8%,#f2b33d 48%,#c2611a 92%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #7a3410) drop-shadow(0 6px 0 #2e1206)}
 .bq.good{border-color:var(--ok);color:var(--ok)}
+.btimer{display:flex;align-items:center;gap:14px;direction:ltr}
+.btimer b{font-family:var(--display);font-weight:700;font-size:3.6rem;line-height:.9;color:var(--accent);min-width:1.3em;text-align:center;font-variant-numeric:tabular-nums}
+.btimer i{flex:1;height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.btimer u{display:block;height:100%;background:var(--accent);border-radius:5px}
+.btimer.low b{color:var(--warn)} .btimer.low u{background:var(--warn)}
 .card.win{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 12px 50px rgba(242,179,61,.2),inset 0 0 0 5px var(--panel),inset 0 0 0 6px rgba(242,179,61,.16)}
 .eyebrow{font-size:.75rem;font-weight:500;letter-spacing:.06em;color:var(--dim)}
 .tape{align-self:flex-start;color:var(--accent);font-weight:700;font-size:.95rem;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
@@ -130,6 +135,7 @@ legend{font-weight:700;font-size:1rem;padding:0 8px;color:var(--accent)}
 .brand b{color:var(--accent);font-weight:600}
 @media (prefers-reduced-motion:no-preference){
   .card{animation:in .22s ease-out} @keyframes in{from{transform:translateY(8px)}to{transform:none}}
+  .btimer.low b{animation:beat .5s ease-in-out infinite alternate} @keyframes beat{to{transform:scale(1.25)}}
   .card.win .clue{animation:pop .5s ease-out} @keyframes pop{from{transform:scale(.9) rotate(-4deg)}to{transform:rotate(-.7deg)}}
 }
 </style>
@@ -183,7 +189,7 @@ function EYE(x){return '<ellipse cx="'+x+'" cy="99.800" rx="1.050" ry=".68" fill
 function fig(k){return '<div class="vf"><svg viewBox="'+SH[k].vb+'" preserveAspectRatio="xMidYMid slice" role="img" aria-label="'+SH[k].n+'">'+SCENE+'</svg><div class="g"></div><span class="tag">'+k+'</span></div>';}
 
 /* ---------- default game (an example route — the teacher replaces it) ---------- */
-var VER=5;function defaults(){return{v:VER,minutes:30,teams:4,perSt:3,title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
+var VER=5;function defaults(){return{v:VER,minutes:30,teams:4,perSt:3,bSec:10,title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
  stations:[
   {clue:'המקום שבו הכדור תמיד בפריים.',where:'מגרש הספורט',q:'איך קוראים בקולנוע למקום שבו מצלמים סצנה?',opts:['טריילר','לוקיישן','פסקול'],ans:1,shot:'ELS',task:'צלמו את כל המגרש, כשחבר צוות אחד עומד רחוק במרכז.'},
   {clue:'אלפי סיפורים מחכים שם בשקט על המדפים.',where:'הספרייה',q:'הרבה סרטים מתחילים מספר. איזה מהסרטים האלה נעשה על פי סדרת ספרים?',opts:['צעצוע של סיפור','שרק 2','הארי פוטר'],ans:2,shot:'MS',task:'צלמו חבר צוות מחזיק ספר, מהמותניים ומעלה.'},
@@ -236,7 +242,7 @@ var AC=null,mute=0,cue='',MUTE=['הכול פועל','בלי קליקים של כ
 var SFX={click:[[520,0,.04,.035,'triangle']],good:[[660,0,.09,.06],[880,.09,.14,.06]],bad:[[233,0,.12,.05,'triangle'],[185,.11,.18,.05,'triangle']],
  win:[[784,0,.12,.06],[1047,.1,.12,.06],[1319,.2,.55,.07],[2637,.2,.3,.018],[1568,.2,.4,.02]],
  treasure:[[523,0,.12,.07],[659,.11,.12,.07],[784,.22,.12,.07],[1047,.33,.14,.07],[784,.47,.1,.06],[1047,.57,.5,.07]],
- timeup:[[330,0,.22,.06,'triangle'],[247,.24,.4,.06,'triangle']]};
+ timeup:[[330,0,.22,.06,'triangle'],[247,.24,.4,.06,'triangle']],tick:[[880,0,.05,.045,'triangle']]};
 function snd(n){cue=n;}
 function play(n){if(mute===2||(mute===1&&n==='click')||!SFX[n])return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();
   var t=AC.currentTime+.01;SFX[n].forEach(function(s){var o=AC.createOscillator(),g=AC.createGain();o.type=s[4]||'sine';o.frequency.value=s[0];
@@ -253,13 +259,16 @@ function bonusCard(){if(!G.bonus.length)return '';if(!+G.perSt)return '';var i=n
  if(i<0)return h+'<p class="muted">עניתם על כל שאלות הבונוס.</p></div>';
  if(n>=+G.perSt)return h+'<p class="muted">סיימתם את שאלות הבונוס של התחנה הזאת. שאלות חדשות מחכות בתחנה הבאה.</p></div>';
  var b=G.bonus[i],o='';b.opts.forEach(function(x,j){if(x)o+='<button class="opt bq wide" data-a="bonus" data-v="'+j+'">'+esc(x)+'</button>';});
- return h+'<p class="eyebrow">שאלה '+(n+1)+' מתוך '+G.perSt+' בתחנה הזאת · יש רק ניסיון אחד</p><p class="big">'+esc(b.q)+'</p><div class="stack">'+o+'</div></div>';}
+ var sec=+G.bSec,eb='<p class="eyebrow">שאלה '+(n+1)+' מתוך '+G.perSt+' בתחנה הזאת · יש רק ניסיון אחד</p>';
+ if(sec&&!P.bOpen)return h+eb+'<p>לא חייבים לענות. אבל מהרגע שפותחים שאלה, יש רק '+sec+' שניות. מי שלא מספיק מפסיד אותה.</p><button class="wide" data-a="bopen">פותחים שאלת בונוס</button></div>';
+ if(sec){var r=Math.max(0,sec*1000-(Date.now()-P.bOpen));eb+='<div class="btimer'+(r<=3000?' low':'')+'" id="btimer"><b id="btime">'+Math.ceil(r/1000)+'</b><i><u id="bbar" style="width:'+(r/sec/10)+'%"></u></i></div>';}
+ return h+eb+'<p class="big">'+esc(b.q)+'</p><div class="stack">'+o+'</div></div>';}
 function cur(){return P.order[P.pos];}
 function norm(s){return String(s||'').replace(/\s+/g,'').toLowerCase();}
 /* one-time approval code: the director's own device turns the shot number into a code, so the pupils never see the teacher PIN */
 function resp(c){var s=String(G.pin)+'#'+c,x=7;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))%1000003;return('00'+x%1000).slice(-3);}
 function timeUp(){if(!P||P.end||!+G.minutes||left()>0)return false;if(!P.chal2){P.chal2=10+Math.floor(Math.random()*90);saveP();}return true;}
-function syncClues(){if(!G.bonus)G.bonus=[];if(G.perSt==null)G.perSt=3;if(!G.teams)G.teams=4;if(G.minutes==null)G.minutes=30;while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
+function syncClues(){if(!G.bonus)G.bonus=[];if(G.perSt==null)G.perSt=3;if(G.bSec==null)G.bSec=10;if(!G.teams)G.teams=4;if(G.minutes==null)G.minutes=30;while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
 
 /* ---------- views ---------- */
 function muteBtn(){return '<button class="ghost" data-a="mute">צלילים: '+MUTE[mute]+'</button>';}
@@ -376,7 +385,8 @@ V.edit=function(){var h='<div class="row" style="justify-content:space-between">
   '<label>טקסט הרמז (אפשר טקסט בלבד, תמונה בלבד, או שניהם)<textarea id="c'+i+'t" data-f="clues.'+i+'.text">'+esc(c.text)+'</textarea></label>'+
   '<div class="row"><button class="ghost" data-a="cluecam" data-v="'+i+'">'+(c.img?'החלפת תמונה':'צילום או בחירת תמונה')+'</button>'+(c.img?'<button class="ghost" data-a="cluedel" data-v="'+i+'">הסרת התמונה</button>':'')+'</div></fieldset>';});
  h+='<h2>שאלות בונוס</h2><p class="muted">בכל תחנה נפתחות כמה שאלות מהרשימה, לפי הסדר, ויש ניסיון אחד לכל שאלה. אם השאלות ברשימה נגמרות, בתחנות האחרונות לא יופיע בונוס.</p>'+
- '<label>כמה שאלות בונוס בכל תחנה (0 = בלי בונוס)<input type="text" id="e-per" data-f="perSt" data-n="1" inputmode="numeric" value="'+esc(G.perSt)+'" style="max-width:120px"></label>';
+ '<label>כמה שאלות בונוס בכל תחנה (0 = בלי בונוס)<input type="text" id="e-per" data-f="perSt" data-n="1" inputmode="numeric" value="'+esc(G.perSt)+'" style="max-width:120px"></label>'+
+ '<label>כמה שניות יש לכל שאלת בונוס (0 = בלי שעון)<input type="text" id="e-bsec" data-f="bSec" data-n="1" inputmode="numeric" value="'+esc(G.bSec)+'" style="max-width:120px"></label>';
  G.bonus.forEach(function(b,i){var ao='';for(var j=0;j<3;j++)ao+='<option value="'+j+'"'+(b.ans===j?' selected':'')+'>תשובה '+(j+1)+'</option>';
   h+='<fieldset><legend>בונוס '+(i+1)+'</legend><label>השאלה<input type="text" id="b'+i+'q" data-f="bonus.'+i+'.q" value="'+esc(b.q)+'"></label>'+
   '<div class="stack">'+[0,1,2].map(function(j){return '<input type="text" id="b'+i+'o'+j+'" aria-label="תשובה '+(j+1)+'" placeholder="תשובה '+(j+1)+'" data-f="bonus.'+i+'.opts.'+j+'" value="'+esc(b.opts[j])+'">';}).join('')+'</div>'+
@@ -418,8 +428,9 @@ var A={
  stdel:function(v){G.stations[+v].img='';saveG();render(true);},
  mute:function(){mute=(mute+1)%3;save('mute',mute);render(true);},
  addteam:function(){G.teams++;team=G.teams;saveG();render(true);},
- bonus:function(v){var i=nextBonus();if(i<0)return;var b=G.bonus[i],ok=+v===b.ans;P.bonus[i]=ok;P.bAt=(P.bAt||0)+1;snd(ok?'good':'bad');if(ok)P.score+=50;
-  P.lastB={ok:ok,t:ok?'נכון! קיבלתם 50 נקודות.':'לא נכון. התשובה הנכונה: '+b.opts[b.ans]};saveP();render(true);},
+ bopen:function(){P.bOpen=Date.now();P.lastB=null;lastTick=0;saveP();render(true);},
+ bonus:function(v){var i=nextBonus();if(i<0)return;var b=G.bonus[i],late=v==='t',ok=!late&&+v===b.ans;P.bonus[i]=ok;P.bOpen=0;P.bAt=(P.bAt||0)+1;snd(ok?'good':'bad');if(ok)P.score+=50;
+  P.lastB={ok:ok,t:ok?'נכון! קיבלתם 50 נקודות.':(late?'נגמר הזמן! ':'לא נכון. ')+'התשובה הנכונה: '+b.opts[b.ans]};saveP();if(view==='play'||view==='hunt')render(true);},
  addbq:function(){G.bonus.push({q:'',opts:['','',''],ans:0});saveG();render(true);},
  delbq:function(v){if(!arm('bq'+v))return;G.bonus.splice(+v,1);saveG();render(true);},
  moretime:function(){var p=document.getElementById('tpin').value.trim();if(p!==String(G.pin)&&p!==resp(P.chal2)){snd('bad');msg='קוד שגוי. רק הבמאי מאפס את הטיימר.';msgGood=false;render(true);return;}
@@ -463,6 +474,11 @@ document.getElementById('imp').addEventListener('change',function(e){var f=e.tar
  var r=new FileReader();r.onload=function(){try{var g=JSON.parse(r.result);if(!g.stations||!g.stations.length||!g.clues)throw 0;g.v=VER;G=g;syncClues();saveG();msg='המשחק נטען.';msgGood=true;}
   catch(x){msg='זה לא קובץ משחק תקין.';msgGood=false;}render(true);};r.readAsText(f);});
 
+var lastTick=0;
+setInterval(function(){if(!P||P.end||!P.bOpen||!+G.bSec)return;var r=G.bSec*1000-(Date.now()-P.bOpen);
+ if(r<=0){A.bonus('t');play('bad');return;}
+ var s=Math.ceil(r/1000),e=document.getElementById('btime');if(!e)return;e.textContent=s;document.getElementById('bbar').style.width=(r/G.bSec/10)+'%';
+ document.getElementById('btimer').classList.toggle('low',s<=3);if(s<=3&&s!==lastTick){lastTick=s;play('tick');}},200);
 setInterval(function(){if(!P||P.end)return;if(['play','clues','hunt'].indexOf(view)>=0&&timeUp()){go('timeup');play('timeup');return;}
  var c=document.getElementById('clock');if(c){c.textContent=clock();c.classList.toggle('low',!!+G.minutes&&left()<300000);}},1000);
 Promise.all([load('game'),load('prog'),load('mute')]).then(function(r){mute=r[2]===true?2:(+r[2]||0);if(r[0]&&r[0].stations&&r[0].v===VER)G=r[0];else if(r[1]){r[1]=null;save('prog',null);}if(r[1])P=r[1];if(P){team=P.team;if(!P.t0)P.t0=P.start;if(!P.bonus)P.bonus={};if(!P.score)P.score=0;}syncClues();render();},function(){render();});
