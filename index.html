@@ -265,7 +265,7 @@ function slate(){var n=G.stations.length,last=P.pos>=n,strip='';
   '</div><div class="strip" aria-label="התקדמות">'+strip+'</div>';}
 function message(){return msg?'<p class="msg'+(msgGood?' good':'')+'" role="status">'+esc(msg)+'</p>':'';}
 function clueCard(i,label){var c=G.clues[i]||{};return '<div class="clue">'+(label?'<span class="eyebrow">'+label+'</span>':'')+
-  (c.img?'<div class="vf fit"><img alt="תמונת רמז לאוצר" src="'+c.img+'"></div>':'')+'<p class="big">'+esc(c.text||'(אין טקסט לרמז הזה)')+'</p></div>';}
+  (c.img?'<div class="vf fit"><img alt="תמונת רמז לאוצר" src="'+c.img+'"></div>':'')+(c.text||!c.img?'<p class="big">'+esc(c.text||'(הרמז הזה עדיין ריק)')+'</p>':'')+'</div>';}
 
 var V={};
 V.home=function(){var t='',lad='';for(var i=1;i<=G.teams;i++)t+='<button data-a="team" data-v="'+i+'" class="'+(team===i?'sel':'')+'" aria-pressed="'+(team===i)+'">צוות '+i+'</button>';
@@ -356,9 +356,9 @@ V.edit=function(){var h='<div class="row" style="justify-content:space-between">
   '<label>התשובה הנכונה<select id="s'+i+'a" data-f="'+p+'ans" data-n="1">'+ao+'</select></label>'+
   (G.stations.length>1?'<button class="ghost" data-a="delst" data-v="'+i+'">'+(armed==='del'+i?'לחצו שוב למחיקה':'מחיקת התחנה')+'</button>':'')+'</fieldset>';});
  h+='<button data-a="addst">הוספת תחנה</button><h2>רמזי האוצר</h2>'+
- '<p class="muted">צלמו את מקום המחבוא בכמה גדלים. רמז 1 הוא הקרוב ביותר (אקסטרים קלוז־אפ) והאחרון הוא הרחב ביותר. כל שוט מאושר חושף את הרמז הבא.</p>';
+ '<p class="muted">כל שוט מאושר חושף את הרמז הבא, לפי הסדר. כל רמז יכול להיות טקסט, תמונה, או שניהם. אם בחרתם בתמונות, התחילו מהקרוב ביותר וסיימו ברחב ביותר.</p>';
  G.clues.forEach(function(c,i){h+='<fieldset><legend>רמז '+(i+1)+'</legend>'+(c.img?'<div class="vf fit"><img alt="" src="'+c.img+'"></div>':'')+
-  '<label>טקסט הרמז<textarea id="c'+i+'t" data-f="clues.'+i+'.text">'+esc(c.text)+'</textarea></label>'+
+  '<label>טקסט הרמז (אפשר טקסט בלבד, תמונה בלבד, או שניהם)<textarea id="c'+i+'t" data-f="clues.'+i+'.text">'+esc(c.text)+'</textarea></label>'+
   '<div class="row"><button class="ghost" data-a="cluecam" data-v="'+i+'">'+(c.img?'החלפת תמונה':'צילום או בחירת תמונה')+'</button>'+(c.img?'<button class="ghost" data-a="cluedel" data-v="'+i+'">הסרת התמונה</button>':'')+'</div></fieldset>';});
  h+='<h2>שאלות בונוס</h2><p class="muted">מופיעות מתחת לכל תחנה. כל צוות עונה בקצב שלו, ויש ניסיון אחד לכל שאלה.</p>';
  G.bonus.forEach(function(b,i){var ao='';for(var j=0;j<3;j++)ao+='<option value="'+j+'"'+(b.ans===j?' selected':'')+'>תשובה '+(j+1)+'</option>';
