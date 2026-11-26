@@ -235,7 +235,7 @@ function load(k){return db().then(function(d){if(!d)return mem[k];return new Pro
  q.onsuccess=function(){res(q.result);};q.onerror=function(){res(mem[k]);};}catch(e){res(mem[k]);}});});}
 function save(k,v){mem[k]=v;db().then(function(d){if(!d)return;try{d.transaction('kv','readwrite').objectStore('kv').put(v,k);}catch(e){}});}
 
-var tname='';var G=defaults(),P=null,view='home',team=1,msg='',msgGood=false,armed='',unlocked=false,camFor=null;
+var tname='',D=null;var G=defaults(),P=null,view='home',team=1,msg='',msgGood=false,armed='',unlocked=false,camFor=null;
 var app=document.getElementById('app');
 /* ---------- sounds: short, soft tones made on the device (no files, works offline) ---------- */
 var AC=null,mute=0,cue='',MUTE=['הכול פועל','בלי קליקים של כפתורים','כבויים'];
@@ -267,7 +267,7 @@ function bonusCard(){if(!G.bonus.length)return '';if(!+G.perSt)return '';var i=n
  if(sec&&!P.bOpen)return h+eb+'<p>לא חייבים לענות. אבל מהרגע שפותחים שאלה, יש רק '+sec+' שניות. מי שלא מספיק מפסיד אותה.</p><button class="wide" data-a="bopen">פותחים שאלת בונוס</button></div>';
  if(sec){var r=Math.max(0,sec*1000-(Date.now()-P.bOpen));eb+='<div class="btimer'+(r<=3000?' low':'')+'" id="btimer"><b id="btime">'+Math.ceil(r/1000)+'</b><i><u id="bbar" style="width:'+(r/sec/10)+'%"></u></i></div>';}
  return h+eb+'<p class="big">'+esc(b.q)+'</p><div class="stack">'+o+'</div></div>';}
-function first(){var s=G.stations[P.order[P.pos]];if(s&&s.q){P.qT=Date.now()+3000;lastQ=0;return 'q';}return 'go';}
+function first(){var s=G.stations[P.order[P.pos]];P.qT=0;return s&&s.q?'q':'go';}
 function cur(){return P.order[P.pos];}
 function norm(s){return String(s||'').replace(/\s+/g,'').toLowerCase();}
 /* one-time approval code: the director's own device turns the shot number into a code, so the pupils never see the teacher PIN */
@@ -299,6 +299,7 @@ V.home=function(){var lad='';
   (G.timePick==='team'?'<span class="tape">כמה זמן משחקים?</span><div class="row">'+[10,15,20,30,45,60].map(function(m){return '<button data-a="mins" data-v="'+m+'" class="'+(+G.minutes===m?'sel':'')+'" aria-pressed="'+(+G.minutes===m)+'">'+m+' דק׳</button>';}).join('')+'</div>'
     :'<p class="muted">זמן המשחק: '+(+G.minutes?G.minutes+' דקות':'בלי הגבלה')+'. רק הבמאי משנה אותו.</p>')+
   '<button class="primary wide" data-a="start">'+(resume&&armed==='start'?'לחצו שוב: המשחק הקודם יימחק':'התחלה')+'</button>'+
+  '<button class="wide" data-a="demo">ניסיון של 30 שניות (הדגמה)</button>'+
   (resume?'<button class="wide" data-a="resume">חוזרים למשחק שהתחלנו</button><p class="muted small">בטאבלט הזה יש משחק שלא הסתיים. "התחלה" מתחילה משחק חדש ומוחקת אותו.</p>':'')+'</div>'+
   '<div class="card"><span class="tape">ששת גדלי השוט</span><p class="muted">אותה דמות, אותו מקום. רק המרחק מהמצלמה משתנה.</p><div class="ladder">'+lad+'</div></div>'+
   '<div class="card"><span class="tape">איך משחקים</span><p>בכל סצנה עונים קודם על שאלת קולנוע. אחריה נפתח רמז למקום בבית הספר. מגיעים לשם, ומצלמים שוט בגודל שביקשו מכם. הבמאי מאשר, ואתם מקבלים רמז נוסף למקום שבו מוחבא האוצר.</p>'+
@@ -339,6 +340,17 @@ V.timeup=function(){return slate()+'<div class="card"><span class="tape">קאט!
   '<div class="stats" style="grid-template-columns:1fr"><div><b>'+P.chal2+'</b>מספר לאיפוס הטיימר</div></div>'+
   '<label for="tpin">קוד הבמאי<input class="pin" id="tpin" type="password" inputmode="numeric" autocomplete="off"></label>'+message()+
   '<button class="primary wide" data-a="moretime">מאפסים את הטיימר וממשיכים</button></div>'+(P.pos>0?'<div class="card">'+Array.apply(0,Array(P.pos)).map(function(_,i){return clueCard(i,'רמז '+(i+1));}).join('')+'</div>':'');};
+V.demo=function(){var r=Math.max(0,30000-(Date.now()-D.t0)),h='<div class="slate" style="grid-template-columns:repeat(2,1fr)"><div class="cell"><div class="k">מצב</div><div class="v" style="direction:rtl">ניסיון</div></div>'+
+  '<div class="cell"><div class="k'+(D.stage==='end'||D.stage==='reward'?'':' live')+'">נותר</div><div class="v'+(r<10000?' low':'')+'" id="dclock">'+fmt(D.stage==='reward'?D.left:r)+'</div></div></div>';
+ if(D.stage==='end')return h+'<div class="card"><span class="tape">קאט!</span><h2>הזמן נגמר</h2><p class="big">ככה זה נשמע ונראה כשהזמן נגמר במשחק האמיתי. שם רק הבמאי יכול לתת זמן נוסף.</p><button class="primary wide" data-a="home">חזרה למסך הפתיחה</button></div>';
+ if(D.stage==='shoot')return h+'<div class="card"><span class="tape">משימת צילום לדוגמה</span><h2>'+SH.CU.n+'</h2><p class="big">צלמו פנים של חבר צוות, כך שהן ממלאות את הפריים.</p>'+fig('CU')+'<p class="muted">'+SH.CU.d+'</p>'+
+   '<button class="shutter" data-a="dcam" aria-label="מצלמים"><span></span></button><p class="shutlbl">מצלמים</p>'+message()+'</div><button class="ghost" data-a="home">יציאה מהניסיון</button>';
+ if(D.stage==='review')return h+'<div class="card"><span class="tape">בדיקת שוט</span><div class="two"><div class="stack"><span class="eyebrow">השוט שלכם</span><div class="vf"><img alt="השוט שצילמתם" src="'+D.img+'"><span class="tag take">TAKE '+D.takes+'</span></div></div>'+
+   '<div class="stack"><span class="eyebrow">'+SH.CU.n+' נראה כך</span>'+fig('CU')+'</div></div><p class="big">האם גודל השוט שלכם זהה לציור?</p>'+
+   '<div class="row"><button class="ok" data-a="dok">כן, השוט תואם</button><button class="cut" data-a="dretake">לא. מצלמים שוב</button></div>'+
+   '<p class="muted small">במשחק האמיתי הבמאי מאשר כאן את השוט עם קוד. בניסיון אין צורך.</p></div>';
+ return h+'<div class="card win"><span class="tape">כך נראה רמז לאוצר</span><div class="clue"><span class="eyebrow">רמז לדוגמה</span><p class="big">האוצר נוגע במשהו חום ומחוספס.</p></div>'+
+   '<p>במשחק האמיתי כל שוט מאושר נותן לכם רמז כזה, ונקודות. מי שאוסף את כל הרמזים מוצא את האוצר.</p><button class="primary wide" data-a="home">הבנו, חזרה למסך הפתיחה</button></div>';};
 V.clues=function(){var h=slate()+'<div class="card"><h2>הרמזים לאוצר</h2>';
  for(var i=0;i<P.pos;i++)h+=clueCard(i,'רמז '+(i+1));
  return h+'</div><button class="primary wide" data-a="resume">חזרה לסצנה</button>';};
@@ -430,6 +442,10 @@ var A={
   snd('win');var g=100+(P.takes===1?20:0);P.score+=g;P.gain='קיבלתם '+g+' נקודות'+(P.takes===1?', כולל בונוס על טייק ראשון.':'.');P.lastB=null;P.shots[cur()]=P.pending;P.pending='';P.checked=false;P.stage='reward';saveP();go('play');},
  next:function(){P.bAt=0;P.pos++;P.takes=0;P.hint=false;P.stage=P.pos>=G.stations.length?'go':first();saveP();go(P.pos>=G.stations.length?'hunt':'play');},
  clues:function(){go('clues');},
+ demo:function(){D={t0:Date.now(),stage:'shoot',takes:0};go('demo');},
+ dcam:function(){camFor='demo';document.getElementById('cam').click();},
+ dretake:function(){D.stage='shoot';go('demo');},
+ dok:function(){D.left=Math.max(0,30000-(Date.now()-D.t0));D.stage='reward';snd('win');go('demo');},
  mins:function(v){G.minutes=+v;armed='';saveG();render(true);},
  mdone:function(){var s=G.stations[cur()],p=document.getElementById('mcode').value;if(!norm(p)||(norm(p)!==norm(s.mcode)&&p.trim()!==String(G.pin))){snd('bad');msg='קוד שגוי. רק מי שנמצא בתחנה מאשר את המשימה.';msgGood=false;render(true);return;}
   snd('win');P.score+=100;P.gain='המשימה הצליחה! קיבלתם 100 נקודות.';P.lastB=null;P.stage='reward';saveP();go('play');},
@@ -438,7 +454,7 @@ var A={
  stpick:function(v){camFor={st:+v};document.getElementById('pick').click();},
  stdel:function(v){G.stations[+v].img='';saveG();render(true);},
  mute:function(){mute=(mute+1)%3;save('mute',mute);render(true);},
- bopen:function(){P.bOpen=Date.now();P.lastB=null;lastTick=0;saveP();render(true);},
+ bopen:function(){P.bOpen=Date.now();P.lastB=null;lastTick=Math.min(5,Math.ceil(+G.bSec));saveP();render(true);snd('tick');},
  bonus:function(v){var i=nextBonus();if(i<0)return;var b=G.bonus[i],late=v==='t',ok=!late&&+v===b.ans;P.bonus[i]=ok;P.bOpen=0;P.bAt=(P.bAt||0)+1;snd(ok?'good':'bad');if(ok)P.score+=50;
   P.lastB={ok:ok,t:ok?'נכון! קיבלתם 50 נקודות.':(late?'נגמר הזמן! ':'לא נכון. ')+'התשובה הנכונה: '+b.opts[b.ans]};saveP();if(view==='play'||view==='hunt')render(true);},
  addbq:function(){G.bonus.push({q:'',opts:['','',''],ans:0});saveG();render(true);},
@@ -477,7 +493,8 @@ function shrink(file,cb){var r=new FileReader();r.onload=function(){var im=new I
  r.onerror=function(){cb('');};r.readAsDataURL(file);}
 function onPhoto(e){var f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;shrink(f,function(d){
   if(!d){msg='לא הצלחנו לקרוא את התמונה. נסו שוב.';msgGood=false;render(true);return;}
-  if(camFor==='shot'){P.pending=d;P.checked=false;P.chal=10+Math.floor(Math.random()*90);P.takes++;P.takesAll++;P.stage='review';saveP();go('play');}
+  if(camFor==='demo'){if(D&&D.stage!=='end'){D.img=d;D.takes++;D.stage='review';go('demo');}}
+  else if(camFor==='shot'){P.pending=d;P.checked=false;P.chal=10+Math.floor(Math.random()*90);P.takes++;P.takesAll++;P.stage='review';saveP();go('play');}
   else if(camFor&&camFor.st!=null&&G.stations[camFor.st]){G.stations[camFor.st].img=d;saveG();render(true);}
   else if(camFor&&G.clues[camFor.clue]){G.clues[camFor.clue].img=d;saveG();render(true);}});}
 document.getElementById('cam').addEventListener('change',onPhoto);
@@ -487,13 +504,16 @@ document.getElementById('imp').addEventListener('change',function(e){var f=e.tar
   catch(x){msg='זה לא קובץ משחק תקין.';msgGood=false;}render(true);};r.readAsText(f);});
 
 var lastTick=0,lastQ=0;
+setInterval(function(){if(view!=='demo'||!D||D.stage==='end'||D.stage==='reward')return;var r=30000-(Date.now()-D.t0);
+ if(r<=0){D.stage='end';go('demo');play('timeup');return;}
+ var c=document.getElementById('dclock');if(c){c.textContent=fmt(r);c.classList.toggle('low',r<10000);}},250);
 setInterval(function(){if(!P||P.end||view!=='play'||P.stage!=='q'||!P.qT)return;var r=P.qT-Date.now();
  if(r<=0){P.qT=0;saveP();render(true);play('good');return;}
  var s=Math.ceil(r/1000),e=document.getElementById('qcount');if(e)e.textContent=s;if(s!==lastQ){lastQ=s;play('tick');}},100);
 setInterval(function(){if(!P||P.end||!P.bOpen||!+G.bSec)return;var r=G.bSec*1000-(Date.now()-P.bOpen);
  if(r<=0){A.bonus('t');play('bad');return;}
  var s=Math.ceil(r/1000),e=document.getElementById('btime');if(!e)return;e.textContent=s;document.getElementById('bbar').style.width=(r/G.bSec/10)+'%';
- document.getElementById('btimer').classList.toggle('low',s<=3);if(s<=3&&s!==lastTick){lastTick=s;play('tick');}},200);
+ document.getElementById('btimer').classList.toggle('low',s<=3);if(s<=5&&s!==lastTick){lastTick=s;play('tick');}},200);
 setInterval(function(){if(!P||P.end)return;if(['play','clues','hunt'].indexOf(view)>=0&&timeUp()){go('timeup');play('timeup');return;}
  var c=document.getElementById('clock');if(c){c.textContent=clock();c.classList.toggle('low',!!+G.minutes&&left()<300000);}},1000);
 Promise.all([load('game'),load('prog'),load('mute')]).then(function(r){mute=r[2]===true?2:(+r[2]||0);if(r[0]&&r[0].stations&&r[0].v===VER)G=r[0];else if(r[1]){r[1]=null;save('prog',null);}if(r[1])P=r[1];if(P){if(!P.t0)P.t0=P.start;if(!P.bonus)P.bonus={};if(!P.score)P.score=0;}syncClues();render();},function(){render();});
