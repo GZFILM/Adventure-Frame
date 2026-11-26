@@ -268,6 +268,12 @@ function bonusCard(){if(!G.bonus.length)return '';if(!+G.perSt)return '';var i=n
  if(sec){var r=Math.max(0,sec*1000-(Date.now()-P.bOpen));eb+='<div class="btimer'+(r<=3000?' low':'')+'" id="btimer"><b id="btime">'+Math.ceil(r/1000)+'</b><i><u id="bbar" style="width:'+(r/sec/10)+'%"></u></i></div>';}
  return h+eb+'<p class="big">'+esc(b.q)+'</p><div class="stack">'+o+'</div></div>';}
 function first(){var s=G.stations[P.order[P.pos]];P.qT=0;return s&&s.q?'q':'go';}
+function total(){var t=P.score;Object.keys(P.shotPts).forEach(function(k){if(P.ok[k]===true)t+=P.shotPts[k];});return t;}
+function waiting(){var t=0;Object.keys(P.shotPts).forEach(function(k){if(P.ok[k]==null)t+=P.shotPts[k];});return t;}
+function reviewCard(){if(!Object.keys(P.shotPts).length)return '';var w=waiting();
+ return '<div class="card"><span class="tape">בדיקת הבמאי</span><p>'+(w?w+' נקודות על שוטים מחכות לבדיקה. ':'כל השוטים נבדקו. ')+'הבמאי עובר על השוטים ומסמן מה מאושר.</p>'+
+  (String(G.pin)?'<label for="cpin">קוד הבמאי<input class="pin" id="cpin" type="password" inputmode="numeric" autocomplete="off"></label>':'')+(view!=='edit'?message():'')+
+  '<button class="wide" data-a="check0">'+(w?'בודקים את השוטים':'בודקים שוב')+'</button></div>';}
 function cur(){return P.order[P.pos];}
 function norm(s){return String(s||'').replace(/\s+/g,'').toLowerCase();}
 /* one-time approval code: the director's own device turns the shot number into a code, so the pupils never see the teacher PIN */
@@ -294,8 +300,8 @@ V.home=function(){var lad='';
  var resume=P&&!P.end,w=String(G.title).split(' ');
  return '<div class="stack" style="padding-block:14px 4px"><div class="stripes"></div>'+(w.length>1?'<h1><span>'+esc(w[0])+'</span><b>'+esc(w.slice(1).join(' '))+'</b></h1>':'<h1 class="solo">'+esc(w[0])+'</h1>')+
   '<p class="big" style="text-align:center">מסע אל האוצר האבוד של בית הספר. כל שוט בגודל הנכון חושף עוד חתיכה מהמפה.</p></div>'+
-  '<div class="card"><span class="tape">איך משחקים</span><p>בכל סצנה עונים קודם על שאלת קולנוע. אחריה נפתח רמז למקום בבית הספר. מגיעים לשם, ומצלמים שוט בגודל שביקשו מכם. הבמאי מאשר, ואתם מקבלים רמז נוסף למקום שבו מוחבא האוצר.</p>'+
-  '<p class="muted">ניקוד: הגעתם למקום 10 · שאלה נכונה בניסיון ראשון 10 · שוט מאושר 20 (ועוד 5 אם הצליח בטייק הראשון) · שאלת בונוס 5 · מציאת האוצר 50 · כל דקה שנשארה בשעון 1.</p></div>'+
+  '<div class="card"><span class="tape">איך משחקים</span><p>בכל סצנה עונים קודם על שאלת קולנוע. אחריה נפתח רמז למקום בבית הספר. מגיעים לשם, ומצלמים שוט בגודל שביקשו מכם. כל שוט פותח רמז נוסף למקום שבו מוחבא האוצר. בסוף הבמאי בודק את השוטים, ורק שוט מאושר מקבל נקודות.</p>'+
+  '<p class="muted">ניקוד: הגעתם למקום 10 · שאלה נכונה בניסיון ראשון 10 · שוט שהבמאי אישר 20 (ועוד 5 אם הצליח בטייק הראשון) · שאלת בונוס 5 · מציאת האוצר 50 · כל דקה שנשארה בשעון 1.</p></div>'+
   '<div class="card"><span class="tape">ששת גדלי השוט</span><p class="muted">אותה דמות, אותו מקום. רק המרחק מהמצלמה משתנה.</p><div class="ladder">'+lad+'</div></div>'+
   '<div class="card"><span class="tape">מתחילים</span>'+
   '<label for="tname">איך קוראים לצוות שלכם? (לא חובה)<input type="text" id="tname" maxlength="24" autocomplete="off" value="'+esc(tname)+'"></label>'+
@@ -319,14 +325,12 @@ V.play=function(){var s=G.stations[cur()],h=slate(),st=P.stage;
  else if(st==='shoot')h+='<div class="card"><span class="tape">משימת צילום</span><h2>'+SH[s.shot].n+'</h2><p class="big">'+esc(s.task)+'</p>'+
    (P.hint?fig(s.shot)+'<p class="muted">'+SH[s.shot].d+'</p>':'<button class="ghost" data-a="hint">תזכירו לי מה זה '+SH[s.shot].n+'</button>')+
    '<button class="shutter" data-a="cam" aria-label="מצלמים"><span></span></button><p class="shutlbl">מצלמים</p>'+message()+'</div>';
- else if(st==='review'){h+='<div class="card"><span class="tape">'+(P.checked?'ממתינים לבמאי':'בדיקת שוט')+'</span>'+
+ else if(st==='review'){h+='<div class="card"><span class="tape">בדיקת שוט</span>'+
    '<div class="two"><div class="stack"><span class="eyebrow">השוט שלכם</span><div class="vf"><img alt="השוט שצילמתם" src="'+P.pending+'"><span class="tag take">TAKE '+P.takes+'</span></div></div>'+
    '<div class="stack"><span class="eyebrow">'+SH[s.shot].n+' נראה כך</span>'+fig(s.shot)+'</div></div>'+
    '<p>'+esc(s.task)+'</p><p class="muted">'+SH[s.shot].d+'</p>';
-   if(!P.checked)h+='<p class="big">בדקו בעצמכם: האם גודל השוט שלכם זהה לציור?</p><div class="row"><button class="ok" data-a="check">'+(G.approval==='teacher'?'כן, מראים לבמאי':'כן, השוט תואם')+'</button><button class="cut" data-a="retake">לא. מצלמים שוב</button></div>';
-   else h+='<div class="stats" style="grid-template-columns:1fr"><div><b>'+P.chal+'</b>מספר השוט. הראו לבמאי את השוט ואת המספר.</div></div>'+
-     '<label for="pin">קוד האישור שקיבלתם מהבמאי<input class="pin" id="pin" type="password" inputmode="numeric" autocomplete="off"></label>'+message()+
-     '<div class="row"><button class="ok" data-a="approve">הדפיסו! השוט מאושר</button><button class="cut" data-a="retake">קאט! מצלמים שוב</button></div>';
+   h+='<p class="big">בדקו בעצמכם: האם גודל השוט שלכם זהה לציור?</p><div class="row"><button class="ok" data-a="approve">כן, השוט תואם</button><button class="cut" data-a="retake">לא. מצלמים שוב</button></div>'+
+     '<p class="muted small">השוט נשמר. בסוף המשחק הבמאי עובר על כל השוטים, ורק שוט שהוא מאשר מקבל נקודות.</p>';
    h+='</div>';}
  else if(st==='reward'){var lastOne=P.pos+1>=G.stations.length;
    h+='<div class="card win"><span class="tape">חתיכת מפה '+(P.pos+1)+' מתוך '+G.stations.length+'</span><p class="msg good">'+esc(P.gain||'')+'</p>'+clueCard(P.pos,'רמז לאוצר')+
@@ -337,9 +341,8 @@ V.play=function(){var s=G.stations[cur()],h=slate(),st=P.stage;
 
 V.timeup=function(){return slate()+'<div class="card"><span class="tape">קאט!</span><h2>הזמן נגמר</h2>'+
   '<p class="big">עצרו וחזרו אל הבמאי. רק הוא יכול לתת לכם זמן נוסף.</p>'+
-  '<div class="stats" style="grid-template-columns:1fr"><div><b>'+P.chal2+'</b>מספר לאיפוס הטיימר</div></div>'+
   '<label for="tpin">קוד הבמאי<input class="pin" id="tpin" type="password" inputmode="numeric" autocomplete="off"></label>'+message()+
-  '<button class="primary wide" data-a="moretime">מאפסים את הטיימר וממשיכים</button></div>'+(P.pos>0?'<div class="card">'+Array.apply(0,Array(P.pos)).map(function(_,i){return clueCard(i,'רמז '+(i+1));}).join('')+'</div>':'');};
+  '<button class="primary wide" data-a="moretime">מאפסים את הטיימר וממשיכים</button></div>'+reviewCard()+(P.pos>0?'<div class="card">'+Array.apply(0,Array(P.pos)).map(function(_,i){return clueCard(i,'רמז '+(i+1));}).join('')+'</div>':'');};
 V.demo=function(){var r=Math.max(0,30000-(Date.now()-D.t0)),h='<div class="slate" style="grid-template-columns:repeat(2,1fr)"><div class="cell"><div class="k">מצב</div><div class="v" style="direction:rtl">ניסיון</div></div>'+
   '<div class="cell"><div class="k'+(D.stage==='end'||D.stage==='reward'?'':' live')+'">נותר</div><div class="v'+(r<10000?' low':'')+'" id="dclock">'+fmt(D.stage==='reward'?D.left:r)+'</div></div></div>';
  if(D.stage==='end')return h+'<div class="card"><span class="tape">קאט!</span><h2>הזמן נגמר</h2><p class="big">ככה זה נשמע ונראה כשהזמן נגמר במשחק האמיתי. שם רק הבמאי יכול לתת זמן נוסף.</p><button class="primary wide" data-a="home">חזרה למסך הפתיחה</button></div>';
@@ -348,9 +351,17 @@ V.demo=function(){var r=Math.max(0,30000-(Date.now()-D.t0)),h='<div class="slate
  if(D.stage==='review')return h+'<div class="card"><span class="tape">בדיקת שוט</span><div class="two"><div class="stack"><span class="eyebrow">השוט שלכם</span><div class="vf"><img alt="השוט שצילמתם" src="'+D.img+'"><span class="tag take">TAKE '+D.takes+'</span></div></div>'+
    '<div class="stack"><span class="eyebrow">'+SH.CU.n+' נראה כך</span>'+fig('CU')+'</div></div><p class="big">האם גודל השוט שלכם זהה לציור?</p>'+
    '<div class="row"><button class="ok" data-a="dok">כן, השוט תואם</button><button class="cut" data-a="dretake">לא. מצלמים שוב</button></div>'+
-   '<p class="muted small">במשחק האמיתי הבמאי מאשר כאן את השוט עם קוד. בניסיון אין צורך.</p></div>';
+   '<p class="muted small">במשחק האמיתי השוט נשמר, והבמאי בודק את כל השוטים בסוף.</p></div>';
  return h+'<div class="card win"><span class="tape">כך נראה רמז לאוצר</span><div class="clue"><span class="eyebrow">רמז לדוגמה</span><p class="big">האוצר נוגע במשהו חום ומחוספס.</p></div>'+
    '<p>במשחק האמיתי כל שוט מאושר נותן לכם רמז כזה, ונקודות. מי שאוסף את כל הרמזים מוצא את האוצר.</p><button class="primary wide" data-a="home">הבנו, חזרה למסך הפתיחה</button></div>';};
+V.check=function(){var h='<div class="row" style="justify-content:space-between"><h2>בדיקת הבמאי</h2><button class="primary" data-a="resume">סיימתי</button></div>'+
+  '<div class="stats" style="grid-template-columns:1fr 1fr"><div><b>'+total()+'</b>ניקוד כרגע</div><div><b>'+waiting()+'</b>מחכות לבדיקה</div></div>';
+ P.order.forEach(function(si,i){if(!P.shots[si])return;var s=G.stations[si],k=P.ok[si];
+  h+='<div class="card"><span class="tape">סצנה '+(i+1)+' · '+SH[s.shot].n+'</span><div class="two"><div class="stack"><span class="eyebrow">השוט של הצוות</span><div class="vf"><img alt="שוט של הצוות" src="'+P.shots[si]+'"></div></div>'+
+   '<div class="stack"><span class="eyebrow">'+SH[s.shot].n+' נראה כך</span>'+fig(s.shot)+'</div></div><p>'+esc(s.task)+'</p>'+
+   '<div class="row"><button class="'+(k===true?'ok':'')+'" data-a="mark" data-v="'+si+':1" aria-pressed="'+(k===true)+'">✓ מאושר, '+P.shotPts[si]+' נקודות</button>'+
+   '<button class="'+(k===false?'cut':'')+'" data-a="mark" data-v="'+si+':0" aria-pressed="'+(k===false)+'">✗ לא מאושר</button></div></div>';});
+ return h+'<button class="primary wide" data-a="resume">סיימתי לבדוק</button>';};
 V.clues=function(){var h=slate()+'<div class="card"><h2>הרמזים לאוצר</h2>';
  for(var i=0;i<P.pos;i++)h+=clueCard(i,'רמז '+(i+1));
  return h+'</div><button class="primary wide" data-a="resume">חזרה לסצנה</button>';};
@@ -363,9 +374,9 @@ V.hunt=function(){var h=slate()+'<div class="card"><span class="tape">הסצנה
  return h+'</div>'+bonusCard()+'<button class="ghost" data-a="home">למסך הפתיחה</button>';};
 
 V.done=function(){var sh='';P.order.forEach(function(si,i){if(P.shots[si])sh+='<figure><div class="vf"><img alt="" src="'+P.shots[si]+'"></div><figcaption>סצנה '+(i+1)+' · '+SH[G.stations[si].shot].n+'</figcaption></figure>';});
- return slate()+'<div class="card win"><span class="tape">זה ראפ!</span><h2>'+(P.name?esc(P.name)+': מצאתם את האוצר':'מצאתם את האוצר')+'</h2><div class="score">'+P.score+'</div><p class="shutlbl">נקודות. הראו את המסך לבמאי.</p>'+
+ return slate()+'<div class="card win"><span class="tape">זה ראפ!</span><h2>'+(P.name?esc(P.name)+': מצאתם את האוצר':'מצאתם את האוצר')+'</h2><div class="score">'+total()+'</div><p class="shutlbl">נקודות'+(waiting()?', ועוד '+waiting()+' מחכות לבדיקת הבמאי.':'. הבמאי בדק את השוטים.')+'</p>'+
   '<div class="stats"><div><b>'+fmt(P.end-P.start)+'</b>זמן</div><div><b>'+P.takesAll+'</b>טייקים</div><div><b>'+Object.keys(P.bonus).filter(function(k){return P.bonus[k];}).length+'/'+G.bonus.length+'</b>שאלות בונוס</div></div></div>'+
-  '<div class="card"><h2>דף הקונטקטים שלכם</h2><p class="muted">כל השוטים שצילמתם בדרך, לפי הסדר. יחד הם מספרים את המסע.</p><div class="sheet">'+sh+'</div></div>'+
+  '<div class="card"><h2>דף הקונטקטים שלכם</h2><p class="muted">כל השוטים שצילמתם בדרך, לפי הסדר. יחד הם מספרים את המסע.</p><div class="sheet">'+sh+'</div></div>'+reviewCard()+
   '<button class="ghost" data-a="home">למסך הפתיחה</button>';};
 
 V.gate=function(){return '<div class="card"><h2>מצב מורה</h2><label for="gpin">קוד מורה<input class="pin" id="gpin" type="password" inputmode="numeric" autocomplete="off"></label>'+
@@ -373,17 +384,13 @@ V.gate=function(){return '<div class="card"><h2>מצב מורה</h2><label for="
   '<div class="row"><button class="primary" data-a="enter">כניסה</button><button class="ghost" data-a="home">חזרה</button></div></div>';};
 
 V.edit=function(){var h='<div class="row" style="justify-content:space-between"><h2>הגדרות המשחק</h2><button class="primary" data-a="home">סיימתי</button></div>'+
- '<div class="card"><span class="tape">אישור שוטים מהמכשיר שלי</span><p>הצוות מראה לכם שוט ומספר שוט. אם השוט טוב, הקלידו כאן את המספר ותנו להם את הקוד.</p>'+
- '<div class="two"><label>מספר השוט<input class="pin" type="text" id="chal" inputmode="numeric" autocomplete="off"></label>'+
- '<div class="stats" style="grid-template-columns:1fr"><div><b id="resp">---</b>קוד האישור</div></div></div>'+
- '<p class="muted small">זה עובד בלי אינטרנט, בתנאי שקוד המורה זהה במכשיר שלכם ובטאבלטים.</p></div>'+
  '<div class="card"><label>שם המשחק<input type="text" id="e-title" data-f="title" value="'+esc(G.title)+'"></label>'+
  '<div class="two"><label>קוד מורה<input type="text" id="e-pin" data-f="pin" inputmode="numeric" value="'+esc(G.pin)+'"></label>'+
  '<label>מילת הקוד שעל האוצר<input type="text" id="e-code" data-f="code" value="'+esc(G.code)+'"></label></div>'+
  '<div class="two"><label>זמן המשחק בדקות (0 = בלי הגבלה)<input type="text" id="e-min" data-f="minutes" data-n="1" inputmode="numeric" value="'+esc(G.minutes)+'"></label>'+
  '<div class="stack" style="justify-content:flex-end"><button data-a="resett">איפוס הטיימר בטאבלט הזה</button></div></div>'+(view==='edit'&&msg?message():'')+
  '<label>מי קובע את זמן המשחק?<select id="e-tp" data-f="timePick"><option value="team"'+(G.timePick==='team'?' selected':'')+'>גם הצוות, במסך הפתיחה</option><option value="teacher"'+(G.timePick==='teacher'?' selected':'')+'>רק אני, כאן במצב מורה</option></select></label>'+
- '<label>מי מאשר את השוטים?<select id="e-appr" data-f="approval"><option value="teacher"'+(G.approval==='teacher'?' selected':'')+'>אני, עם קוד מורה</option><option value="self"'+(G.approval==='self'?' selected':'')+'>הצוות בודק את עצמו מול ציור</option></select></label></div>'+
+ '<p class="muted small">קוד המורה משמש לשלושה דברים בלבד: כניסה למצב מורה, בדיקת השוטים בסוף המשחק ואיפוס הטיימר.</p></div>'+
  '<p class="muted">כל טאבלט מערבב את סדר התחנות בעצמו, כך שהצוותים לא הולכים זה אחרי זה. רמזי האוצר נחשפים תמיד באותו סדר, מהקרוב אל הרחב.</p>';
  G.stations.forEach(function(s,i){var p='stations.'+i+'.',so='',ao='';
   Object.keys(SH).forEach(function(k){so+='<option value="'+k+'"'+(s.shot===k?' selected':'')+'>'+SH[k].n+'</option>';});
@@ -428,20 +435,21 @@ function arm(k){if(armed===k){armed='';return true;}armed=k;render(true);return 
 /* ---------- actions ---------- */
 var A={
  start:function(){if(P&&!P.end&&!arm('start'))return;var n=G.stations.length,o=[];for(var i=0;i<n;i++)o.push(i);for(i=n-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),x=o[i];o[i]=o[j];o[j]=x;}
-  P={name:tname.trim(),start:Date.now(),t0:Date.now(),score:0,bonus:{},order:o,pos:0,stage:'go',takes:0,takesAll:0,wrong:0,shots:{},bad:[]};P.stage=first();saveP();go('play');},
- resume:function(){go(P.end?'done':timeUp()?'timeup':P.pos>=G.stations.length?'hunt':'play');},
+  P={name:tname.trim(),start:Date.now(),t0:Date.now(),score:0,bonus:{},shotPts:{},ok:{},order:o,pos:0,stage:'go',takes:0,takesAll:0,wrong:0,shots:{},bad:[]};P.stage=first();saveP();go('play');},
+ resume:function(){msg='';go(P.end?'done':timeUp()?'timeup':P.pos>=G.stations.length?'hunt':'play');},
  home:function(){unlocked=false;go('home');},
  arrive:function(){P.score+=10;P.stage='shoot';saveP();go('play');msg='הגעתם! קיבלתם 10 נקודות.';msgGood=true;render();snd('good');},
  ans:function(v){var s=G.stations[cur()];if(+v===s.ans){var g=P.bad.length===0?10:P.bad.length===1?5:0;P.score+=g;snd('good');P.stage='go';P.bad=[];P.lastB=null;saveP();go('play');msg='נכון מאוד!'+(g?' קיבלתם '+g+' נקודות.':'');msgGood=true;render();}
   else{snd('bad');P.wrong++;P.bad.push(+v);saveP();msg='לא מדויק. נסו שוב.';msgGood=false;render(true);}},
  hint:function(){P.hint=true;saveP();render(true);},
  cam:function(){camFor='shot';document.getElementById('cam').click();},
- check:function(){if(G.approval==='teacher'){P.checked=true;saveP();render(true);}else A.approve();},
  retake:function(){P.checked=false;P.pending='';P.stage='shoot';saveP();go('play');},
- approve:function(){if(G.approval==='teacher'){var p=document.getElementById('pin').value.trim();if(p!==String(G.pin)&&p!==resp(P.chal)){snd('bad');msg='קוד שגוי. רק הבמאי מאשר שוטים.';msgGood=false;render(true);return;}}
-  snd('win');var g=20+(P.takes===1?5:0);P.score+=g;P.gain='קיבלתם '+g+' נקודות'+(P.takes===1?', כולל בונוס על טייק ראשון.':'.');P.lastB=null;P.shots[cur()]=P.pending;P.pending='';P.checked=false;P.stage='reward';saveP();go('play');},
+ approve:function(){
+  snd('win');var g=20+(P.takes===1?5:0);P.shotPts[cur()]=g;delete P.ok[cur()];P.gain='השוט נשמר. '+g+' נקודות מחכות לבדיקת הבמאי בסוף.';P.lastB=null;P.shots[cur()]=P.pending;P.pending='';P.checked=false;P.stage='reward';saveP();go('play');},
  next:function(){P.bAt=0;P.pos++;P.takes=0;P.hint=false;P.stage=P.pos>=G.stations.length?'go':first();saveP();go(P.pos>=G.stations.length?'hunt':'play');},
  clues:function(){go('clues');},
+ check0:function(){var e=document.getElementById('cpin');if(String(G.pin)&&(!e||e.value.trim()!==String(G.pin))){snd('bad');msg='קוד שגוי. רק הבמאי בודק את השוטים.';msgGood=false;render(true);return;}go('check');},
+ mark:function(v){var a=v.split(':');P.ok[a[0]]=a[1]==='1';saveP();snd(a[1]==='1'?'good':'click');render(true);},
  demo:function(){D={t0:Date.now(),stage:'shoot',takes:0};go('demo');},
  dcam:function(){camFor='demo';document.getElementById('cam').click();},
  dretake:function(){D.stage='shoot';go('demo');},
@@ -459,7 +467,7 @@ var A={
   P.lastB={ok:ok,t:ok?'נכון! קיבלתם 5 נקודות.':(late?'נגמר הזמן! ':'לא נכון. ')+'התשובה הנכונה: '+b.opts[b.ans]};saveP();if(view==='play'||view==='hunt')render(true);},
  addbq:function(){G.bonus.push({q:'',opts:['','',''],ans:0});saveG();render(true);},
  delbq:function(v){if(!arm('bq'+v))return;G.bonus.splice(+v,1);saveG();render(true);},
- moretime:function(){var p=document.getElementById('tpin').value.trim();if(p!==String(G.pin)&&p!==resp(P.chal2)){snd('bad');msg='קוד שגוי. רק הבמאי מאפס את הטיימר.';msgGood=false;render(true);return;}
+ moretime:function(){var p=document.getElementById('tpin').value.trim();if(p!==String(G.pin)){snd('bad');msg='קוד שגוי. רק הבמאי מאפס את הטיימר.';msgGood=false;render(true);return;}
   P.t0=Date.now();P.chal2=0;saveP();A.resume();snd('good');},
  resett:function(){if(P&&!P.end){P.t0=Date.now();P.chal2=0;saveP();msg='הטיימר אופס. לצוות יש שוב '+(+G.minutes)+' דקות.';}else msg='אין משחק פעיל בטאבלט הזה.';msgGood=true;render(true);},
  code:function(){if(norm(document.getElementById('code').value)===norm(G.code)){P.score+=50+(+G.minutes?Math.max(0,Math.floor(left()/60000)):0);P.end=Date.now();saveP();go('done');snd('treasure');}
@@ -479,12 +487,11 @@ var A={
 app.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.getAttribute('data-a');
  if(a!==armed.replace(/\d+$/,'')&&['start','delst','delbq','resetp','resetg','mskip'].indexOf(a)<0)armed='';msg='';cue='click';A[a](b.getAttribute('data-v'));play(cue);});
 app.addEventListener('input',function(e){if(e.target.id==='tname'){tname=e.target.value;return;}
- if(e.target.id==='chal'||e.target.id==='e-pin'){var c=document.getElementById('chal').value.trim();setTimeout(function(){document.getElementById('resp').textContent=c?resp(c):'---';},0);}
  var f=e.target.getAttribute&&e.target.getAttribute('data-f');if(!f||!unlocked)return;
  var parts=f.split('.'),o=G;for(var i=0;i<parts.length-1;i++)o=o[parts[i]];
  o[parts[parts.length-1]]=e.target.getAttribute('data-n')?(+e.target.value||0):e.target.value;saveG();});
 app.addEventListener('keydown',function(e){if(e.key!=='Enter'||e.target.tagName!=='INPUT')return;
- var m={pin:'approve',gpin:'enter',code:'code',tpin:'moretime',mcode:'mdone'}[e.target.id];if(m){e.preventDefault();cue='';A[m]();play(cue);}});
+ var m={cpin:'check0',gpin:'enter',code:'code',tpin:'moretime',mcode:'mdone'}[e.target.id];if(m){e.preventDefault();cue='';A[m]();play(cue);}});
 
 /* ---------- photos: shrink before storing so the tablet does not fill up ---------- */
 function shrink(file,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){
@@ -516,7 +523,7 @@ setInterval(function(){if(!P||P.end||!P.bOpen||!+G.bSec)return;var r=G.bSec*1000
  document.getElementById('btimer').classList.toggle('low',s<=3);if(s<=5&&s!==lastTick){lastTick=s;play('tick');}},200);
 setInterval(function(){if(!P||P.end)return;if(['play','clues','hunt'].indexOf(view)>=0&&timeUp()){go('timeup');play('timeup');return;}
  var c=document.getElementById('clock');if(c){c.textContent=clock();c.classList.toggle('low',!!+G.minutes&&left()<300000);}},1000);
-Promise.all([load('game'),load('prog'),load('mute')]).then(function(r){mute=r[2]===true?2:(+r[2]||0);if(r[0]&&r[0].stations&&r[0].v===VER)G=r[0];else if(r[1]){r[1]=null;save('prog',null);}if(r[1])P=r[1];if(P){if(!P.t0)P.t0=P.start;if(!P.bonus)P.bonus={};if(!P.score)P.score=0;}syncClues();render();},function(){render();});
+Promise.all([load('game'),load('prog'),load('mute')]).then(function(r){mute=r[2]===true?2:(+r[2]||0);if(r[0]&&r[0].stations&&r[0].v===VER)G=r[0];else if(r[1]){r[1]=null;save('prog',null);}if(r[1])P=r[1];if(P){if(!P.t0)P.t0=P.start;if(!P.bonus)P.bonus={};if(!P.shotPts)P.shotPts={};if(!P.ok)P.ok={};if(!P.score)P.score=0;}syncClues();render();},function(){render();});
 render();
 try{if('serviceWorker' in navigator&&location.protocol==='https:'&&window.top===window.self)navigator.serviceWorker.register('sw.js').catch(function(){});}catch(e){}
 })();
