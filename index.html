@@ -42,7 +42,7 @@ p{margin:0}
 .stripes{height:12px;border-radius:3px;background:repeating-linear-gradient(115deg,var(--accent) 0 22px,#111 22px 44px)}
 
 /* HUD */
-.slate{display:grid;grid-template-columns:repeat(4,1fr);background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.slate{display:grid;grid-template-columns:repeat(3,1fr);background:var(--panel);border:1px solid var(--line);border-radius:12px}
 .slate .cell{padding:8px 12px;border-inline-start:1px solid var(--line);min-width:0}
 .slate .cell:first-child{border:0}
 .slate .k{font-size:.72rem;color:var(--dim);letter-spacing:.04em;display:flex;align-items:center;gap:6px}
@@ -275,7 +275,6 @@ function muteBtn(){return '<button class="ghost" data-a="mute">צלילים: '+M
 function slate(){var n=G.stations.length,last=P.pos>=n,strip='';
  for(var i=0;i<n;i++)strip+='<i class="'+(i<P.pos?'on':i===P.pos?'now':'')+'"></i>';
  return '<div class="slate">'+
-  '<div class="cell"><div class="k">צוות</div><div class="v">'+P.team+'</div></div>'+
   '<div class="cell"><div class="k">סצנה</div><div class="v">'+(last?'END':(P.pos+1)+'/'+n)+'</div></div>'+
   '<div class="cell"><div class="k">ניקוד</div><div class="v">'+P.score+'</div></div>'+
   '<div class="cell"><div class="k'+(P.end?'':' live')+'">'+(P.end||!+G.minutes?'זמן':'נותר')+'</div><div class="v'+(!P.end&&+G.minutes&&left()<300000?' low':'')+'" id="clock">'+clock()+'</div></div>'+
@@ -285,15 +284,14 @@ function clueCard(i,label){var c=G.clues[i]||{};return '<div class="clue">'+(lab
   (c.img?'<div class="vf fit"><img alt="תמונת רמז לאוצר" src="'+c.img+'"></div>':'')+(c.text||!c.img?'<p class="big">'+esc(c.text||'(הרמז הזה עדיין ריק)')+'</p>':'')+'</div>';}
 
 var V={};
-V.home=function(){var t='',lad='';for(var i=1;i<=G.teams;i++)t+='<button data-a="team" data-v="'+i+'" class="'+(team===i?'sel':'')+'" aria-pressed="'+(team===i)+'">צוות '+i+'</button>';
+V.home=function(){var lad='';
  Object.keys(SH).forEach(function(k){lad+='<figure>'+fig(k)+'<figcaption>'+SH[k].n+'</figcaption></figure>';});
  var resume=P&&!P.end,w=String(G.title).split(' ');
  return '<div class="stack" style="padding-block:14px 4px"><div class="stripes"></div>'+(w.length>1?'<h1><span>'+esc(w[0])+'</span><b>'+esc(w.slice(1).join(' '))+'</b></h1>':'<h1 class="solo">'+esc(w[0])+'</h1>')+
   '<p class="big" style="text-align:center">מסע אל האוצר האבוד של בית הספר. כל שוט בגודל הנכון חושף עוד חתיכה מהמפה.</p></div>'+
-  (resume?'<button class="primary wide" data-a="resume">ממשיכים לצלם (צוות '+P.team+')</button>':'')+
-  '<div class="card"><span class="tape">'+(resume?'משחק חדש':+G.fixedTeam?'הצוות שלכם':'בחרו צוות')+'</span>'+
-  (+G.fixedTeam?'<h2>צוות '+G.fixedTeam+'</h2>':'<div class="row">'+t+(G.teams<12?'<button class="ghost" data-a="addteam">+ צוות נוסף</button>':'')+'</div>')+
-  '<label for="tname">שם הצוות (לא חובה, תמציאו משהו)<input type="text" id="tname" maxlength="24" autocomplete="off" value="'+esc(tname)+'"></label>'+
+  (resume?'<button class="primary wide" data-a="resume">ממשיכים לצלם'+(P.name?' ('+esc(P.name)+')':'')+'</button>':'')+
+  '<div class="card"><span class="tape">'+(resume?'משחק חדש':'מתחילים')+'</span>'+
+  '<label for="tname">איך קוראים לצוות שלכם? (לא חובה)<input type="text" id="tname" maxlength="24" autocomplete="off" value="'+esc(tname)+'"></label>'+
   (G.timePick==='team'?'<span class="tape">כמה זמן משחקים?</span><div class="row">'+[10,15,20,30,45,60].map(function(m){return '<button data-a="mins" data-v="'+m+'" class="'+(+G.minutes===m?'sel':'')+'" aria-pressed="'+(+G.minutes===m)+'">'+m+' דק׳</button>';}).join('')+'</div>'
     :'<p class="muted">זמן המשחק: '+(+G.minutes?G.minutes+' דקות':'בלי הגבלה')+'. רק הבמאי משנה אותו.</p>')+
   '<button class="'+(resume?'':'primary ')+'wide" data-a="start">'+(resume&&armed!=='start'?'מתחילים משחק חדש':resume?'לחצו שוב: המשחק הקודם יימחק':'אקשן! מתחילים')+'</button></div>'+
@@ -331,7 +329,7 @@ V.play=function(){var s=G.stations[cur()],h=slate(),st=P.stage;
 
 V.timeup=function(){return slate()+'<div class="card"><span class="tape">קאט!</span><h2>הזמן נגמר</h2>'+
   '<p class="big">עצרו וחזרו אל הבמאי. רק הוא יכול לתת לכם זמן נוסף.</p>'+
-  '<div class="stats" style="grid-template-columns:1fr"><div><b>'+P.chal2+'</b>מספר הצוות לאיפוס הטיימר</div></div>'+
+  '<div class="stats" style="grid-template-columns:1fr"><div><b>'+P.chal2+'</b>מספר לאיפוס הטיימר</div></div>'+
   '<label for="tpin">קוד הבמאי<input class="pin" id="tpin" type="password" inputmode="numeric" autocomplete="off"></label>'+message()+
   '<button class="primary wide" data-a="moretime">מאפסים את הטיימר וממשיכים</button></div>'+(P.pos>0?'<div class="card">'+Array.apply(0,Array(P.pos)).map(function(_,i){return clueCard(i,'רמז '+(i+1));}).join('')+'</div>':'');};
 V.clues=function(){var h=slate()+'<div class="card"><h2>הרמזים לאוצר</h2>';
@@ -346,7 +344,7 @@ V.hunt=function(){var h=slate()+'<div class="card"><span class="tape">הסצנה
  return h+'</div>'+bonusCard()+'<button class="ghost" data-a="home">למסך הפתיחה</button>';};
 
 V.done=function(){var sh='';P.order.forEach(function(si,i){if(P.shots[si])sh+='<figure><div class="vf"><img alt="" src="'+P.shots[si]+'"></div><figcaption>סצנה '+(i+1)+' · '+SH[G.stations[si].shot].n+'</figcaption></figure>';});
- return slate()+'<div class="card win"><span class="tape">זה ראפ!</span><h2>'+(P.name?esc(P.name)+' (צוות '+P.team+')':'צוות '+P.team)+' מצא את האוצר</h2><div class="score">'+P.score+'</div><p class="shutlbl">נקודות. הראו את המסך לבמאי.</p>'+
+ return slate()+'<div class="card win"><span class="tape">זה ראפ!</span><h2>'+(P.name?esc(P.name)+': מצאתם את האוצר':'מצאתם את האוצר')+'</h2><div class="score">'+P.score+'</div><p class="shutlbl">נקודות. הראו את המסך לבמאי.</p>'+
   '<div class="stats"><div><b>'+fmt(P.end-P.start)+'</b>זמן</div><div><b>'+P.takesAll+'</b>טייקים</div><div><b>'+Object.keys(P.bonus).filter(function(k){return P.bonus[k];}).length+'/'+G.bonus.length+'</b>שאלות בונוס</div></div></div>'+
   '<div class="card"><h2>דף הקונטקטים שלכם</h2><p class="muted">כל השוטים שצילמתם בדרך, לפי הסדר. יחד הם מספרים את המסע.</p><div class="sheet">'+sh+'</div></div>'+
   '<button class="ghost" data-a="home">למסך הפתיחה</button>';};
@@ -365,10 +363,9 @@ V.edit=function(){var h='<div class="row" style="justify-content:space-between">
  '<label>מילת הקוד שעל האוצר<input type="text" id="e-code" data-f="code" value="'+esc(G.code)+'"></label></div>'+
  '<div class="two"><label>זמן המשחק בדקות (0 = בלי הגבלה)<input type="text" id="e-min" data-f="minutes" data-n="1" inputmode="numeric" value="'+esc(G.minutes)+'"></label>'+
  '<div class="stack" style="justify-content:flex-end"><button data-a="resett">איפוס הטיימר בטאבלט הזה</button></div></div>'+(view==='edit'&&msg?message():'')+
- '<label>הצוות של הטאבלט הזה<select id="e-ft" data-f="fixedTeam" data-n="1"><option value="0">הצוות בוחר מספר במסך הפתיחה</option><option value="1"'+(+G.fixedTeam===1?' selected':'')+'>צוות 1</option><option value="2"'+(+G.fixedTeam===2?' selected':'')+'>צוות 2</option><option value="3"'+(+G.fixedTeam===3?' selected':'')+'>צוות 3</option><option value="4"'+(+G.fixedTeam===4?' selected':'')+'>צוות 4</option><option value="5"'+(+G.fixedTeam===5?' selected':'')+'>צוות 5</option><option value="6"'+(+G.fixedTeam===6?' selected':'')+'>צוות 6</option><option value="7"'+(+G.fixedTeam===7?' selected':'')+'>צוות 7</option><option value="8"'+(+G.fixedTeam===8?' selected':'')+'>צוות 8</option><option value="9"'+(+G.fixedTeam===9?' selected':'')+'>צוות 9</option><option value="10"'+(+G.fixedTeam===10?' selected':'')+'>צוות 10</option><option value="11"'+(+G.fixedTeam===11?' selected':'')+'>צוות 11</option><option value="12"'+(+G.fixedTeam===12?' selected':'')+'>צוות 12</option></select></label>'+
  '<label>מי קובע את זמן המשחק?<select id="e-tp" data-f="timePick"><option value="team"'+(G.timePick==='team'?' selected':'')+'>גם הצוות, במסך הפתיחה</option><option value="teacher"'+(G.timePick==='teacher'?' selected':'')+'>רק אני, כאן במצב מורה</option></select></label>'+
  '<label>מי מאשר את השוטים?<select id="e-appr" data-f="approval"><option value="teacher"'+(G.approval==='teacher'?' selected':'')+'>אני, עם קוד מורה</option><option value="self"'+(G.approval==='self'?' selected':'')+'>הצוות בודק את עצמו מול ציור</option></select></label></div>'+
- '<p class="muted">כל צוות מתחיל מתחנה אחרת (צוות 1 מתחנה 1, צוות 2 מתחנה 2 וכן הלאה), כך שהצוותים לא הולכים זה אחרי זה. רמזי האוצר נחשפים תמיד באותו סדר, מהקרוב אל הרחב.</p>';
+ '<p class="muted">כל טאבלט מערבב את סדר התחנות בעצמו, כך שהצוותים לא הולכים זה אחרי זה. רמזי האוצר נחשפים תמיד באותו סדר, מהקרוב אל הרחב.</p>';
  G.stations.forEach(function(s,i){var p='stations.'+i+'.',so='',ao='';
   Object.keys(SH).forEach(function(k){so+='<option value="'+k+'"'+(s.shot===k?' selected':'')+'>'+SH[k].n+'</option>';});
   for(var j=0;j<3;j++)ao+='<option value="'+j+'"'+(s.ans===j?' selected':'')+'>תשובה '+(j+1)+'</option>';
@@ -411,9 +408,8 @@ function arm(k){if(armed===k){armed='';return true;}armed=k;render(true);return 
 
 /* ---------- actions ---------- */
 var A={
- team:function(v){team=+v;armed='';render(true);},
- start:function(){if(P&&!P.end&&!arm('start'))return;var n=G.stations.length,o=[];for(var i=0;i<n;i++)o.push((i+team-1)%n);
-  if(+G.fixedTeam)team=+G.fixedTeam;P={team:team,name:tname.trim(),start:Date.now(),t0:Date.now(),score:0,bonus:{},order:o,pos:0,stage:'go',takes:0,takesAll:0,wrong:0,shots:{},bad:[]};saveP();go('play');},
+ start:function(){if(P&&!P.end&&!arm('start'))return;var n=G.stations.length,o=[];for(var i=0;i<n;i++)o.push(i);for(i=n-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),x=o[i];o[i]=o[j];o[j]=x;}
+  P={name:tname.trim(),start:Date.now(),t0:Date.now(),score:0,bonus:{},order:o,pos:0,stage:'go',takes:0,takesAll:0,wrong:0,shots:{},bad:[]};saveP();go('play');},
  resume:function(){go(P.end?'done':timeUp()?'timeup':P.pos>=G.stations.length?'hunt':'play');},
  home:function(){unlocked=false;go('home');},
  arrive:function(){P.stage=G.stations[cur()].q?'q':'shoot';saveP();go('play');},
@@ -435,7 +431,6 @@ var A={
  stpick:function(v){camFor={st:+v};document.getElementById('pick').click();},
  stdel:function(v){G.stations[+v].img='';saveG();render(true);},
  mute:function(){mute=(mute+1)%3;save('mute',mute);render(true);},
- addteam:function(){G.teams++;team=G.teams;saveG();render(true);},
  bopen:function(){P.bOpen=Date.now();P.lastB=null;lastTick=0;saveP();render(true);},
  bonus:function(v){var i=nextBonus();if(i<0)return;var b=G.bonus[i],late=v==='t',ok=!late&&+v===b.ans;P.bonus[i]=ok;P.bOpen=0;P.bAt=(P.bAt||0)+1;snd(ok?'good':'bad');if(ok)P.score+=50;
   P.lastB={ok:ok,t:ok?'נכון! קיבלתם 50 נקודות.':(late?'נגמר הזמן! ':'לא נכון. ')+'התשובה הנכונה: '+b.opts[b.ans]};saveP();if(view==='play'||view==='hunt')render(true);},
@@ -481,7 +476,7 @@ function onPhoto(e){var f=e.target.files&&e.target.files[0];e.target.value='';if
 document.getElementById('cam').addEventListener('change',onPhoto);
 document.getElementById('pick').addEventListener('change',onPhoto);
 document.getElementById('imp').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
- var r=new FileReader();r.onload=function(){try{var g=JSON.parse(r.result);if(!g.stations||!g.stations.length||!g.clues)throw 0;g.v=VER;g.fixedTeam=G.fixedTeam||0;G=g;syncClues();saveG();msg='המשחק נטען.';msgGood=true;}
+ var r=new FileReader();r.onload=function(){try{var g=JSON.parse(r.result);if(!g.stations||!g.stations.length||!g.clues)throw 0;g.v=VER;G=g;syncClues();saveG();msg='המשחק נטען.';msgGood=true;}
   catch(x){msg='זה לא קובץ משחק תקין.';msgGood=false;}render(true);};r.readAsText(f);});
 
 var lastTick=0;
@@ -491,7 +486,7 @@ setInterval(function(){if(!P||P.end||!P.bOpen||!+G.bSec)return;var r=G.bSec*1000
  document.getElementById('btimer').classList.toggle('low',s<=3);if(s<=3&&s!==lastTick){lastTick=s;play('tick');}},200);
 setInterval(function(){if(!P||P.end)return;if(['play','clues','hunt'].indexOf(view)>=0&&timeUp()){go('timeup');play('timeup');return;}
  var c=document.getElementById('clock');if(c){c.textContent=clock();c.classList.toggle('low',!!+G.minutes&&left()<300000);}},1000);
-Promise.all([load('game'),load('prog'),load('mute')]).then(function(r){mute=r[2]===true?2:(+r[2]||0);if(r[0]&&r[0].stations&&r[0].v===VER)G=r[0];else if(r[1]){r[1]=null;save('prog',null);}if(r[1])P=r[1];if(P){team=P.team;if(!P.t0)P.t0=P.start;if(!P.bonus)P.bonus={};if(!P.score)P.score=0;}syncClues();render();},function(){render();});
+Promise.all([load('game'),load('prog'),load('mute')]).then(function(r){mute=r[2]===true?2:(+r[2]||0);if(r[0]&&r[0].stations&&r[0].v===VER)G=r[0];else if(r[1]){r[1]=null;save('prog',null);}if(r[1])P=r[1];if(P){if(!P.t0)P.t0=P.start;if(!P.bonus)P.bonus={};if(!P.score)P.score=0;}syncClues();render();},function(){render();});
 render();
 try{if('serviceWorker' in navigator&&location.protocol==='https:'&&window.top===window.self)navigator.serviceWorker.register('sw.js').catch(function(){});}catch(e){}
 })();
