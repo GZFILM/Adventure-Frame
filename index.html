@@ -263,6 +263,7 @@ function bonusCard(){if(!G.bonus.length)return '';if(!+G.perSt)return '';var i=n
  if(sec&&!P.bOpen)return h+eb+'<p>לא חייבים לענות. אבל מהרגע שפותחים שאלה, יש רק '+sec+' שניות. מי שלא מספיק מפסיד אותה.</p><button class="wide" data-a="bopen">פותחים שאלת בונוס</button></div>';
  if(sec){var r=Math.max(0,sec*1000-(Date.now()-P.bOpen));eb+='<div class="btimer'+(r<=3000?' low':'')+'" id="btimer"><b id="btime">'+Math.ceil(r/1000)+'</b><i><u id="bbar" style="width:'+(r/sec/10)+'%"></u></i></div>';}
  return h+eb+'<p class="big">'+esc(b.q)+'</p><div class="stack">'+o+'</div></div>';}
+function first(){var s=G.stations[P.order[P.pos]];return s&&s.q?'q':'go';}
 function cur(){return P.order[P.pos];}
 function norm(s){return String(s||'').replace(/\s+/g,'').toLowerCase();}
 /* one-time approval code: the director's own device turns the shot number into a code, so the pupils never see the teacher PIN */
@@ -296,15 +297,15 @@ V.home=function(){var lad='';
   '<button class="primary wide" data-a="start">'+(resume&&armed==='start'?'לחצו שוב: המשחק הקודם יימחק':'התחלה')+'</button>'+
   (resume?'<button class="wide" data-a="resume">חוזרים למשחק שהתחלנו</button><p class="muted small">בטאבלט הזה יש משחק שלא הסתיים. "התחלה" מתחילה משחק חדש ומוחקת אותו.</p>':'')+'</div>'+
   '<div class="card"><span class="tape">ששת גדלי השוט</span><p class="muted">אותה דמות, אותו מקום. רק המרחק מהמצלמה משתנה.</p><div class="ladder">'+lad+'</div></div>'+
-  '<div class="card"><span class="tape">איך משחקים</span><p>בכל סצנה תפענחו רמז, תגיעו למקום הנכון בבית הספר ותצלמו שם שוט בגודל שביקשו מכם. הבמאי מאשר, ואתם מקבלים רמז נוסף למקום שבו מוחבא האוצר.</p>'+
+  '<div class="card"><span class="tape">איך משחקים</span><p>בכל סצנה עונים קודם על שאלת קולנוע. אחריה נפתח רמז למקום בבית הספר. מגיעים לשם, ומצלמים שוט בגודל שביקשו מכם. הבמאי מאשר, ואתם מקבלים רמז נוסף למקום שבו מוחבא האוצר.</p>'+
   '<p class="muted">ניקוד: שוט מאושר 100 (ועוד 20 אם הצליח בטייק הראשון) · שאלה נכונה בניסיון ראשון 30 · שאלת בונוס 50 · מציאת האוצר 200 · כל דקה שנשארה בשעון 10.</p></div>'+
   '<div class="row" style="justify-content:center">'+muteBtn()+'<button class="ghost" data-a="gate">מצב מורה</button></div>';};
 
 V.play=function(){var s=G.stations[cur()],h=slate(),st=P.stage;
  if(st==='go')h+='<div class="card"><span class="tape">'+(s.type==='mission'?'את מי מחפשים?':'לאן הולכים?')+'</span>'+(s.img?'<div class="vf fit"><img alt="תמונת רמז" src="'+s.img+'"></div>':'')+'<p class="big">'+esc(s.clue)+'</p>'+
-   '<p class="muted">פענחו את הרמז ולכו לשם יחד, כל הצוות.</p><button class="primary wide" data-a="arrive">'+(s.type==='mission'?'מצאנו':'הגענו למקום')+'</button></div>';
+   '<p class="muted">פענחו את הרמז ולכו לשם יחד, כל הצוות. כשתגיעו, תקבלו משימת צילום.</p>'+message()+'<button class="primary wide" data-a="arrive">'+(s.type==='mission'?'מצאנו':'הגענו למקום')+'</button></div>';
  else if(st==='q'){var o='';s.opts.forEach(function(x,i){if(x)o+='<button class="opt wide'+(P.bad&&P.bad.indexOf(i)>=0?' bad':'')+'" data-a="ans" data-v="'+i+'">'+esc(x)+'</button>';});
-   h+='<div class="card"><span class="tape">שאלת קולנוע</span><p class="big">'+esc(s.q)+'</p><div class="stack">'+o+'</div>'+message()+'</div>';}
+   h+='<div class="card"><span class="tape">שאלת קולנוע</span><p class="muted">'+(P.pos===0?'לפני שאני נותן לכם את הרמז הראשון, אתם צריכים לענות על שאלה.':'לפני הרמז הבא, עוד שאלה אחת.')+'</p><p class="big">'+esc(s.q)+'</p><div class="stack">'+o+'</div>'+message()+'</div>';}
  else if(st==='shoot'&&s.type==='mission')h+='<div class="card"><span class="tape">משימה · 100 נקודות</span><p class="big">'+esc(s.task)+'</p>'+
    '<label for="mcode">קוד ההצלחה (מקליד רק מי שנמצא בתחנה)<input class="pin" id="mcode" type="password" autocomplete="off"></label>'+message()+
    '<div class="row"><button class="ok" data-a="mdone">הצלחנו!</button><button class="cut" data-a="mskip">'+(armed==='mskip'?'לחצו שוב: ממשיכים בלי נקודות':'לא הצליח לנו')+'</button></div></div>';
@@ -409,11 +410,11 @@ function arm(k){if(armed===k){armed='';return true;}armed=k;render(true);return 
 /* ---------- actions ---------- */
 var A={
  start:function(){if(P&&!P.end&&!arm('start'))return;var n=G.stations.length,o=[];for(var i=0;i<n;i++)o.push(i);for(i=n-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),x=o[i];o[i]=o[j];o[j]=x;}
-  P={name:tname.trim(),start:Date.now(),t0:Date.now(),score:0,bonus:{},order:o,pos:0,stage:'go',takes:0,takesAll:0,wrong:0,shots:{},bad:[]};saveP();go('play');},
+  P={name:tname.trim(),start:Date.now(),t0:Date.now(),score:0,bonus:{},order:o,pos:0,stage:'go',takes:0,takesAll:0,wrong:0,shots:{},bad:[]};P.stage=first();saveP();go('play');},
  resume:function(){go(P.end?'done':timeUp()?'timeup':P.pos>=G.stations.length?'hunt':'play');},
  home:function(){unlocked=false;go('home');},
- arrive:function(){P.stage=G.stations[cur()].q?'q':'shoot';saveP();go('play');},
- ans:function(v){var s=G.stations[cur()];if(+v===s.ans){var g=P.bad.length===0?30:P.bad.length===1?10:0;P.score+=g;snd('good');P.stage='shoot';P.bad=[];P.lastB=null;saveP();go('play');msg='נכון מאוד!'+(g?' קיבלתם '+g+' נקודות.':'');msgGood=true;render();}
+ arrive:function(){P.stage='shoot';saveP();go('play');},
+ ans:function(v){var s=G.stations[cur()];if(+v===s.ans){var g=P.bad.length===0?30:P.bad.length===1?10:0;P.score+=g;snd('good');P.stage='go';P.bad=[];P.lastB=null;saveP();go('play');msg='נכון מאוד!'+(g?' קיבלתם '+g+' נקודות.':'');msgGood=true;render();}
   else{snd('bad');P.wrong++;P.bad.push(+v);saveP();msg='לא מדויק. נסו שוב.';msgGood=false;render(true);}},
  hint:function(){P.hint=true;saveP();render(true);},
  cam:function(){camFor='shot';document.getElementById('cam').click();},
@@ -421,7 +422,7 @@ var A={
  retake:function(){P.checked=false;P.pending='';P.stage='shoot';saveP();go('play');},
  approve:function(){if(G.approval==='teacher'){var p=document.getElementById('pin').value.trim();if(p!==String(G.pin)&&p!==resp(P.chal)){snd('bad');msg='קוד שגוי. רק הבמאי מאשר שוטים.';msgGood=false;render(true);return;}}
   snd('win');var g=100+(P.takes===1?20:0);P.score+=g;P.gain='קיבלתם '+g+' נקודות'+(P.takes===1?', כולל בונוס על טייק ראשון.':'.');P.lastB=null;P.shots[cur()]=P.pending;P.pending='';P.checked=false;P.stage='reward';saveP();go('play');},
- next:function(){P.bAt=0;P.pos++;P.takes=0;P.hint=false;P.stage='go';saveP();go(P.pos>=G.stations.length?'hunt':'play');},
+ next:function(){P.bAt=0;P.pos++;P.takes=0;P.hint=false;P.stage=P.pos>=G.stations.length?'go':first();saveP();go(P.pos>=G.stations.length?'hunt':'play');},
  clues:function(){go('clues');},
  mins:function(v){G.minutes=+v;armed='';saveG();render(true);},
  mdone:function(){var s=G.stations[cur()],p=document.getElementById('mcode').value;if(!norm(p)||(norm(p)!==norm(s.mcode)&&p.trim()!==String(G.pin))){snd('bad');msg='קוד שגוי. רק מי שנמצא בתחנה מאשר את המשימה.';msgGood=false;render(true);return;}
