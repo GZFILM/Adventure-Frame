@@ -294,6 +294,9 @@ V.home=function(){var lad='';
  var resume=P&&!P.end,w=String(G.title).split(' ');
  return '<div class="stack" style="padding-block:14px 4px"><div class="stripes"></div>'+(w.length>1?'<h1><span>'+esc(w[0])+'</span><b>'+esc(w.slice(1).join(' '))+'</b></h1>':'<h1 class="solo">'+esc(w[0])+'</h1>')+
   '<p class="big" style="text-align:center">מסע אל האוצר האבוד של בית הספר. כל שוט בגודל הנכון חושף עוד חתיכה מהמפה.</p></div>'+
+  '<div class="card"><span class="tape">איך משחקים</span><p>בכל סצנה עונים קודם על שאלת קולנוע. אחריה נפתח רמז למקום בבית הספר. מגיעים לשם, ומצלמים שוט בגודל שביקשו מכם. הבמאי מאשר, ואתם מקבלים רמז נוסף למקום שבו מוחבא האוצר.</p>'+
+  '<p class="muted">ניקוד: שוט מאושר 100 (ועוד 20 אם הצליח בטייק הראשון) · שאלה נכונה בניסיון ראשון 30 · שאלת בונוס 50 · מציאת האוצר 200 · כל דקה שנשארה בשעון 10.</p></div>'+
+  '<div class="card"><span class="tape">ששת גדלי השוט</span><p class="muted">אותה דמות, אותו מקום. רק המרחק מהמצלמה משתנה.</p><div class="ladder">'+lad+'</div></div>'+
   '<div class="card"><span class="tape">מתחילים</span>'+
   '<label for="tname">איך קוראים לצוות שלכם? (לא חובה)<input type="text" id="tname" maxlength="24" autocomplete="off" value="'+esc(tname)+'"></label>'+
   (G.timePick==='team'?'<span class="tape">כמה זמן משחקים?</span><div class="row">'+[10,15,20,30,45,60].map(function(m){return '<button data-a="mins" data-v="'+m+'" class="'+(+G.minutes===m?'sel':'')+'" aria-pressed="'+(+G.minutes===m)+'">'+m+' דק׳</button>';}).join('')+'</div>'
@@ -301,9 +304,6 @@ V.home=function(){var lad='';
   '<button class="primary wide" data-a="start">'+(resume&&armed==='start'?'לחצו שוב: המשחק הקודם יימחק':'התחלה')+'</button>'+
   '<button class="wide" data-a="demo">ניסיון של 30 שניות (הדגמה)</button>'+
   (resume?'<button class="wide" data-a="resume">חוזרים למשחק שהתחלנו</button><p class="muted small">בטאבלט הזה יש משחק שלא הסתיים. "התחלה" מתחילה משחק חדש ומוחקת אותו.</p>':'')+'</div>'+
-  '<div class="card"><span class="tape">ששת גדלי השוט</span><p class="muted">אותה דמות, אותו מקום. רק המרחק מהמצלמה משתנה.</p><div class="ladder">'+lad+'</div></div>'+
-  '<div class="card"><span class="tape">איך משחקים</span><p>בכל סצנה עונים קודם על שאלת קולנוע. אחריה נפתח רמז למקום בבית הספר. מגיעים לשם, ומצלמים שוט בגודל שביקשו מכם. הבמאי מאשר, ואתם מקבלים רמז נוסף למקום שבו מוחבא האוצר.</p>'+
-  '<p class="muted">ניקוד: שוט מאושר 100 (ועוד 20 אם הצליח בטייק הראשון) · שאלה נכונה בניסיון ראשון 30 · שאלת בונוס 50 · מציאת האוצר 200 · כל דקה שנשארה בשעון 10.</p></div>'+
   '<div class="row" style="justify-content:center">'+muteBtn()+'<button class="ghost" data-a="gate">מצב מורה</button></div>';};
 
 V.play=function(){var s=G.stations[cur()],h=slate(),st=P.stage;
