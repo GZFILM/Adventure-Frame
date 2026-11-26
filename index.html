@@ -268,7 +268,7 @@ function norm(s){return String(s||'').replace(/\s+/g,'').toLowerCase();}
 /* one-time approval code: the director's own device turns the shot number into a code, so the pupils never see the teacher PIN */
 function resp(c){var s=String(G.pin)+'#'+c,x=7;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))%1000003;return('00'+x%1000).slice(-3);}
 function timeUp(){if(!P||P.end||!+G.minutes||left()>0)return false;if(!P.chal2){P.chal2=10+Math.floor(Math.random()*90);saveP();}return true;}
-function syncClues(){if(!G.bonus)G.bonus=[];if(G.perSt==null)G.perSt=3;if(G.bSec==null)G.bSec=10;if(!G.teams)G.teams=4;if(G.minutes==null)G.minutes=30;while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
+function syncClues(){if(!G.bonus)G.bonus=[];if(G.perSt==null)G.perSt=3;if(!G.timePick)G.timePick='team';if(G.bSec==null)G.bSec=10;if(!G.teams)G.teams=4;if(G.minutes==null)G.minutes=30;while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
 
 /* ---------- views ---------- */
 function muteBtn(){return '<button class="ghost" data-a="mute">צלילים: '+MUTE[mute]+'</button>';}
@@ -292,6 +292,8 @@ V.home=function(){var t='',lad='';for(var i=1;i<=G.teams;i++)t+='<button data-a=
   '<p class="big" style="text-align:center">מסע אל האוצר האבוד של בית הספר. כל שוט בגודל הנכון חושף עוד חתיכה מהמפה.</p></div>'+
   (resume?'<button class="primary wide" data-a="resume">ממשיכים לצלם (צוות '+P.team+')</button>':'')+
   '<div class="card"><span class="tape">'+(resume?'משחק חדש':'בחרו צוות')+'</span><div class="row">'+t+(G.teams<12?'<button class="ghost" data-a="addteam">+ צוות נוסף</button>':'')+'</div>'+
+  (G.timePick==='team'?'<span class="tape">כמה זמן משחקים?</span><div class="row">'+[10,15,20,30,45,60].map(function(m){return '<button data-a="mins" data-v="'+m+'" class="'+(+G.minutes===m?'sel':'')+'" aria-pressed="'+(+G.minutes===m)+'">'+m+' דק׳</button>';}).join('')+'</div>'
+    :'<p class="muted">זמן המשחק: '+(+G.minutes?G.minutes+' דקות':'בלי הגבלה')+'. רק הבמאי משנה אותו.</p>')+
   '<button class="'+(resume?'':'primary ')+'wide" data-a="start">'+(resume&&armed!=='start'?'מתחילים משחק חדש':resume?'לחצו שוב: המשחק הקודם יימחק':'אקשן! מתחילים')+'</button></div>'+
   '<div class="card"><span class="tape">ששת גדלי השוט</span><p class="muted">אותה דמות, אותו מקום. רק המרחק מהמצלמה משתנה.</p><div class="ladder">'+lad+'</div></div>'+
   '<div class="card"><span class="tape">איך משחקים</span><p>בכל סצנה תפענחו רמז, תגיעו למקום הנכון בבית הספר ותצלמו שם שוט בגודל שביקשו מכם. הבמאי מאשר, ואתם מקבלים רמז נוסף למקום שבו מוחבא האוצר.</p>'+
@@ -361,6 +363,7 @@ V.edit=function(){var h='<div class="row" style="justify-content:space-between">
  '<label>מילת הקוד שעל האוצר<input type="text" id="e-code" data-f="code" value="'+esc(G.code)+'"></label></div>'+
  '<div class="two"><label>זמן המשחק בדקות (0 = בלי הגבלה)<input type="text" id="e-min" data-f="minutes" data-n="1" inputmode="numeric" value="'+esc(G.minutes)+'"></label>'+
  '<div class="stack" style="justify-content:flex-end"><button data-a="resett">איפוס הטיימר בטאבלט הזה</button></div></div>'+(view==='edit'&&msg?message():'')+
+ '<label>מי קובע את זמן המשחק?<select id="e-tp" data-f="timePick"><option value="team"'+(G.timePick==='team'?' selected':'')+'>גם הצוות, במסך הפתיחה</option><option value="teacher"'+(G.timePick==='teacher'?' selected':'')+'>רק אני, כאן במצב מורה</option></select></label>'+
  '<label>מי מאשר את השוטים?<select id="e-appr" data-f="approval"><option value="teacher"'+(G.approval==='teacher'?' selected':'')+'>אני, עם קוד מורה</option><option value="self"'+(G.approval==='self'?' selected':'')+'>הצוות בודק את עצמו מול ציור</option></select></label></div>'+
  '<p class="muted">כל צוות מתחיל מתחנה אחרת (צוות 1 מתחנה 1, צוות 2 מתחנה 2 וכן הלאה), כך שהצוותים לא הולכים זה אחרי זה. רמזי האוצר נחשפים תמיד באותו סדר, מהקרוב אל הרחב.</p>';
  G.stations.forEach(function(s,i){var p='stations.'+i+'.',so='',ao='';
@@ -421,6 +424,7 @@ var A={
   snd('win');var g=100+(P.takes===1?20:0);P.score+=g;P.gain='קיבלתם '+g+' נקודות'+(P.takes===1?', כולל בונוס על טייק ראשון.':'.');P.lastB=null;P.shots[cur()]=P.pending;P.pending='';P.checked=false;P.stage='reward';saveP();go('play');},
  next:function(){P.bAt=0;P.pos++;P.takes=0;P.hint=false;P.stage='go';saveP();go(P.pos>=G.stations.length?'hunt':'play');},
  clues:function(){go('clues');},
+ mins:function(v){G.minutes=+v;armed='';saveG();render(true);},
  mdone:function(){var s=G.stations[cur()],p=document.getElementById('mcode').value;if(!norm(p)||(norm(p)!==norm(s.mcode)&&p.trim()!==String(G.pin))){snd('bad');msg='קוד שגוי. רק מי שנמצא בתחנה מאשר את המשימה.';msgGood=false;render(true);return;}
   snd('win');P.score+=100;P.gain='המשימה הצליחה! קיבלתם 100 נקודות.';P.lastB=null;P.stage='reward';saveP();go('play');},
  mskip:function(){if(!arm('mskip'))return;P.gain='הפעם בלי נקודות, אבל הרמז שלכם.';P.lastB=null;P.stage='reward';saveP();go('play');},
