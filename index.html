@@ -189,7 +189,7 @@ function EYE(x){return '<ellipse cx="'+x+'" cy="99.800" rx="1.050" ry=".68" fill
 function fig(k){return '<div class="vf"><svg viewBox="'+SH[k].vb+'" preserveAspectRatio="xMidYMid slice" role="img" aria-label="'+SH[k].n+'">'+SCENE+'</svg><div class="g"></div><span class="tag">'+k+'</span></div>';}
 
 /* ---------- default game (an example route — the teacher replaces it) ---------- */
-var VER=5;function defaults(){return{v:VER,minutes:30,teams:4,perSt:3,bSec:10,title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
+var VER=5;function defaults(){return{v:VER,minutes:30,teams:4,perSt:3,bSec:5,bSecV:2,title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
  stations:[
   {clue:'המקום שבו הכדור תמיד בפריים.',where:'מגרש הספורט',q:'איך קוראים בקולנוע למקום שבו מצלמים סצנה?',opts:['טריילר','לוקיישן','פסקול'],ans:1,shot:'ELS',task:'צלמו את כל המגרש, כשחבר צוות אחד עומד רחוק במרכז.'},
   {clue:'אלפי סיפורים מחכים שם בשקט על המדפים.',where:'הספרייה',q:'הרבה סרטים מתחילים מספר. איזה מהסרטים האלה נעשה על פי סדרת ספרים?',opts:['צעצוע של סיפור','שרק 2','הארי פוטר'],ans:2,shot:'MS',task:'צלמו חבר צוות מחזיק ספר, מהמותניים ומעלה.'},
@@ -267,13 +267,13 @@ function bonusCard(){if(!G.bonus.length)return '';if(!+G.perSt)return '';var i=n
  if(sec&&!P.bOpen)return h+eb+'<p>לא חייבים לענות. אבל מהרגע שפותחים שאלה, יש רק '+sec+' שניות. מי שלא מספיק מפסיד אותה.</p><button class="wide" data-a="bopen">פותחים שאלת בונוס</button></div>';
  if(sec){var r=Math.max(0,sec*1000-(Date.now()-P.bOpen));eb+='<div class="btimer'+(r<=3000?' low':'')+'" id="btimer"><b id="btime">'+Math.ceil(r/1000)+'</b><i><u id="bbar" style="width:'+(r/sec/10)+'%"></u></i></div>';}
  return h+eb+'<p class="big">'+esc(b.q)+'</p><div class="stack">'+o+'</div></div>';}
-function first(){var s=G.stations[P.order[P.pos]];return s&&s.q?'q':'go';}
+function first(){var s=G.stations[P.order[P.pos]];if(s&&s.q){P.qT=Date.now()+3000;lastQ=0;return 'q';}return 'go';}
 function cur(){return P.order[P.pos];}
 function norm(s){return String(s||'').replace(/\s+/g,'').toLowerCase();}
 /* one-time approval code: the director's own device turns the shot number into a code, so the pupils never see the teacher PIN */
 function resp(c){var s=String(G.pin)+'#'+c,x=7;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))%1000003;return('00'+x%1000).slice(-3);}
 function timeUp(){if(!P||P.end||!+G.minutes||left()>0)return false;if(!P.chal2){P.chal2=10+Math.floor(Math.random()*90);saveP();}return true;}
-function syncClues(){if(!G.bonus)G.bonus=[];if(G.perSt==null)G.perSt=3;if(!G.timePick)G.timePick='team';if(G.bSec==null)G.bSec=10;if(!G.teams)G.teams=4;if(G.minutes==null)G.minutes=30;while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
+function syncClues(){if(!G.bonus)G.bonus=[];if(G.perSt==null)G.perSt=3;if(!G.timePick)G.timePick='team';if(G.bSec==null||G.bSecV!==2){G.bSec=5;G.bSecV=2;}if(!G.teams)G.teams=4;if(G.minutes==null)G.minutes=30;while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
 
 /* ---------- views ---------- */
 function muteBtn(){return '<button class="ghost" data-a="mute">צלילים: '+MUTE[mute]+'</button>';}
@@ -308,6 +308,8 @@ V.home=function(){var lad='';
 V.play=function(){var s=G.stations[cur()],h=slate(),st=P.stage;
  if(st==='go')h+='<div class="card"><span class="tape">'+(s.type==='mission'?'את מי מחפשים?':'לאן הולכים?')+'</span>'+(s.img?'<div class="vf fit"><img alt="תמונת רמז" src="'+s.img+'"></div>':'')+'<p class="big">'+esc(s.clue)+'</p>'+
    '<p class="muted">פענחו את הרמז ולכו לשם יחד, כל הצוות. כשתגיעו, תקבלו משימת צילום.</p>'+message()+'<button class="primary wide" data-a="arrive">'+(s.type==='mission'?'מצאנו':'הגענו למקום')+'</button></div>';
+ else if(st==='q'&&P.qT&&P.qT>Date.now())h+='<div class="card"><span class="tape">שאלת קולנוע</span><p class="big" style="text-align:center">'+(P.pos===0?'לפני שאני נותן לכם את הרמז הראשון, אתם צריכים לענות על שאלה.':'לפני הרמז הבא, עוד שאלה אחת.')+'</p>'+
+   '<div class="score" id="qcount">'+Math.ceil((P.qT-Date.now())/1000)+'</div><p class="shutlbl">מוכנים?</p></div>';
  else if(st==='q'){var o='';s.opts.forEach(function(x,i){if(x)o+='<button class="opt wide'+(P.bad&&P.bad.indexOf(i)>=0?' bad':'')+'" data-a="ans" data-v="'+i+'">'+esc(x)+'</button>';});
    h+='<div class="card"><span class="tape">שאלת קולנוע</span><p class="muted">'+(P.pos===0?'לפני שאני נותן לכם את הרמז הראשון, אתם צריכים לענות על שאלה.':'לפני הרמז הבא, עוד שאלה אחת.')+'</p><p class="big">'+esc(s.q)+'</p><div class="stack">'+o+'</div>'+message()+'</div>';}
  else if(st==='shoot'&&s.type==='mission')h+='<div class="card"><span class="tape">משימה · 100 נקודות</span><p class="big">'+esc(s.task)+'</p>'+
@@ -484,7 +486,10 @@ document.getElementById('imp').addEventListener('change',function(e){var f=e.tar
  var r=new FileReader();r.onload=function(){try{var g=JSON.parse(r.result);if(!g.stations||!g.stations.length||!g.clues)throw 0;g.v=VER;G=g;syncClues();saveG();msg='המשחק נטען.';msgGood=true;}
   catch(x){msg='זה לא קובץ משחק תקין.';msgGood=false;}render(true);};r.readAsText(f);});
 
-var lastTick=0;
+var lastTick=0,lastQ=0;
+setInterval(function(){if(!P||P.end||view!=='play'||P.stage!=='q'||!P.qT)return;var r=P.qT-Date.now();
+ if(r<=0){P.qT=0;saveP();render(true);play('good');return;}
+ var s=Math.ceil(r/1000),e=document.getElementById('qcount');if(e)e.textContent=s;if(s!==lastQ){lastQ=s;play('tick');}},100);
 setInterval(function(){if(!P||P.end||!P.bOpen||!+G.bSec)return;var r=G.bSec*1000-(Date.now()-P.bOpen);
  if(r<=0){A.bonus('t');play('bad');return;}
  var s=Math.ceil(r/1000),e=document.getElementById('btime');if(!e)return;e.textContent=s;document.getElementById('bbar').style.width=(r/G.bSec/10)+'%';
