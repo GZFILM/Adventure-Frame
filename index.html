@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="manifest" href="manifest.json">
 <!--head-->
-<title>פריים הרפתקה</title>
+<title>מרדף בפריים</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Suez+One&family=Karantina:wght@400;700&family=Heebo:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
@@ -74,7 +74,7 @@ p{margin:0}
 .card.win{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 12px 50px rgba(242,179,61,.2),inset 0 0 0 5px var(--panel),inset 0 0 0 6px rgba(242,179,61,.16)}
 .eyebrow{font-size:.75rem;font-weight:500;letter-spacing:.06em;color:var(--dim)}
 .tape{align-self:flex-start;color:var(--accent);font-weight:700;font-size:.95rem;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
-.tape::before{content:"";width:18px;height:2px;background:var(--accent)}
+.tape svg{width:26px;height:26px;flex:none;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .big{font-size:1.5rem;font-weight:700;line-height:1.3}
 .tape{font-family:var(--display);font-size:1.7rem!important;line-height:1;letter-spacing:0!important}
 legend{font-family:var(--display);font-size:1.7rem!important;line-height:1}
@@ -189,7 +189,7 @@ function EYE(x){return '<ellipse cx="'+x+'" cy="99.800" rx="1.050" ry=".68" fill
 function fig(k){return '<div class="vf"><svg viewBox="'+SH[k].vb+'" preserveAspectRatio="xMidYMid slice" role="img" aria-label="'+SH[k].n+'">'+SCENE+'</svg><div class="g"></div><span class="tag">'+k+'</span></div>';}
 
 /* ---------- default game (an example route — the teacher replaces it) ---------- */
-var VER=5;function defaults(){return{v:VER,minutes:30,teams:4,perSt:3,bSec:5,bSecV:2,title:'פריים הרפתקה',pin:'1234',approval:'teacher',code:'אקשן',
+var VER=5;function defaults(){return{v:VER,minutes:30,teams:4,perSt:3,bSec:5,bSecV:2,title:'מרדף בפריים',pin:'1234',approval:'teacher',code:'אקשן',
  stations:[
   {clue:'המקום שבו הכדור תמיד בפריים.',where:'מגרש הספורט',q:'איך קוראים בקולנוע למקום שבו מצלמים סצנה?',opts:['טריילר','לוקיישן','פסקול'],ans:1,shot:'ELS',task:'צלמו את כל המגרש, כשחבר צוות אחד עומד רחוק במרכז.'},
   {clue:'אלפי סיפורים מחכים שם בשקט על המדפים.',where:'הספרייה',q:'הרבה סרטים מתחילים מספר. איזה מהסרטים האלה נעשה על פי סדרת ספרים?',opts:['צעצוע של סיפור','שרק 2','הארי פוטר'],ans:2,shot:'MS',task:'צלמו חבר צוות מחזיק ספר, מהמותניים ומעלה.'},
@@ -279,7 +279,7 @@ function norm(s){return String(s||'').replace(/\s+/g,'').toLowerCase();}
 /* one-time approval code: the director's own device turns the shot number into a code, so the pupils never see the teacher PIN */
 function resp(c){var s=String(G.pin)+'#'+c,x=7;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))%1000003;return('00'+x%1000).slice(-3);}
 function timeUp(){if(!P||P.end||!+G.minutes||left()>0)return false;if(!P.chal2){P.chal2=10+Math.floor(Math.random()*90);saveP();}return true;}
-function syncClues(){if(!G.bonus)G.bonus=[];if(G.perSt==null)G.perSt=3;if(!G.timePick)G.timePick='team';if(G.bSec==null||G.bSecV!==2){G.bSec=5;G.bSecV=2;}if(!G.teams)G.teams=4;if(G.minutes==null)G.minutes=30;while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
+function syncClues(){if(G.title==='פריים הרפתקה')G.title='מרדף בפריים';if(!G.bonus)G.bonus=[];if(G.perSt==null)G.perSt=3;if(!G.timePick)G.timePick='team';if(G.bSec==null||G.bSecV!==2){G.bSec=5;G.bSecV=2;}if(!G.teams)G.teams=4;if(G.minutes==null)G.minutes=30;while(G.clues.length<G.stations.length)G.clues.push({text:'',img:''});G.clues.length=G.stations.length;}
 
 /* ---------- views ---------- */
 function muteBtn(){return '<button class="ghost" data-a="mute">צלילים: '+MUTE[mute]+'</button>';}
@@ -428,7 +428,18 @@ V.edit=function(){var h='<div class="row" style="justify-content:space-between">
  '<button class="cut" data-a="resetg">'+(armed==='resetg'?'לחצו שוב לאישור':'חזרה למשחק הדוגמה')+'</button></div></div>';
  return h;};
 
-function render(keep){app.innerHTML=V[view]()+'<footer class="brand">G.Z <b>a</b>LAB</footer>';if(!keep)window.scrollTo(0,0);}
+var IC={clap:'M3 9h18v11H3zM3 9l2-4h16l-2 4M8 5l-2 4M13 5l-2 4M18 5l-2 4',map:'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14',
+ frame:'M3 8V4h4M17 4h4v4M21 16v4h-4M7 20H3v-4M10 12a2 2 0 1 0 4 0a2 2 0 1 0-4 0',clock:'M4 13a8 8 0 1 0 16 0a8 8 0 1 0-16 0M12 9v4l3 2M10 2h4',
+ q:'M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0M9.500 9.500a2.600 2.600 0 1 1 4 2.200c-1 .6-1.500 1.100-1.500 2.100M12 17h.01',
+ pin:'M12 21s-7-6.200-7-11a7 7 0 0 1 14 0c0 4.800-7 11-7 11zM9.500 10a2.500 2.500 0 1 0 5 0a2.500 2.500 0 1 0-5 0',
+ cam:'M3 8h4l2-3h6l2 3h4v11H3zM8.500 13a3.500 3.500 0 1 0 7 0a3.500 3.500 0 1 0-7 0',check:'M3 8V4h4M17 4h4v4M21 16v4h-4M7 20H3v-4M8 12l3 3 5-6',
+ x:'M3 20c2-5 6-3 8-7M14 4l6 6M20 4l-6 6',star:'M12 3l2.700 5.600 6.100.8-4.500 4.300 1.100 6.100L12 16.900l-5.400 2.900 1.100-6.100L3.200 9.400l6.100-.8z',
+ bell:'M6 17v-6a6 6 0 0 1 12 0v6l2 2H4zM10 22h4',cup:'M8 4h8v5a4 4 0 0 1-8 0zM8 6H4c0 3 2 4 4 4M16 6h4c0 3-2 4-4 4M12 13v4M8 20h8',flag:'M5 21V4h11l-2 4 2 4H5'};
+var ICMAP=[['מתחילים','clap'],['איך משחקים','map'],['גדלי השוט','frame'],['כמה זמן','clock'],['שאלת קולנוע','q'],['לאן הולכים','pin'],['את מי מחפשים','pin'],
+ ['משימת צילום','cam'],['משימה','flag'],['בדיקת שוט','check'],['בדיקת הבמאי','check'],['בונוס','star'],['קאט','bell'],['ראפ','cup'],['מפה','x'],['רמז','x'],['הסצנה האחרונה','x']];
+function icons(){[].forEach.call(app.querySelectorAll('.tape'),function(e){var t=e.textContent,k='frame';for(var i=0;i<ICMAP.length;i++)if(t.indexOf(ICMAP[i][0])>=0){k=ICMAP[i][1];break;}
+ e.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+IC[k]+'"/></svg>');});}
+function render(keep){app.innerHTML=V[view]()+'<footer class="brand">G.Z <b>a</b>LAB</footer>';icons();if(!keep)window.scrollTo(0,0);}
 function go(v){view=v;msg='';armed='';render();}
 function arm(k){if(armed===k){armed='';return true;}armed=k;render(true);return false;}
 
